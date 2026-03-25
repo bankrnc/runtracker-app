@@ -1,0 +1,129 @@
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { registerSchema, type RegisterInput } from "../schemas/register.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router";
+import { apiClient } from "../config/apiClient";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
+
+export default function RegisterPage() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<RegisterInput>({
+    defaultValues: { email: "", password: "", firstName: "", lastName: "" },
+    resolver: zodResolver(registerSchema),
+    mode: "onChange",
+  });
+
+  const navigate = useNavigate();
+
+  const onSubmit: SubmitHandler<RegisterInput> = async (data) => {
+    try {
+      await apiClient.post("/auth/register", data);
+      toast.success("Your account has been created. Please login to continue");
+      navigate("/login");
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        // 1. ถ้ามีคำตอบจาก Server (เช่น 409)
+        if (err.response) {
+          if (err.response.status === 409) {
+            setError("email", { message: "email already in use" });
+            return;
+          }
+          // โชว์ข้อความที่ส่งมาจาก Backend
+          toast.error(err.response.data.message || "An error occurred");
+        }
+        // 2. ถ้าไม่มีคำตอบจาก Server (เช่น Server ปิด)
+        else if (err.request) {
+          toast.error(
+            "Cannot connect to server. Please check if your backend is running.",
+          );
+        }
+        return;
+      }
+
+      // 3. Error อื่นๆ ที่ไม่ใช่ Axios (เช่น โค้ดฝั่ง Client พังเอง)
+      toast.error("something went wrong");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 gap-10">
+      <div className="flex flex-col justify-center items-center gap-1">
+        <h1 className="text-3xl font-black tracking-tighter text-lime-400 italic mb-2">
+          VeloStep
+        </h1>
+        <h2 className="text-2xl font-bold tracking-tight">
+          Create your account
+        </h2>
+        <p className="text-zinc-500 mt-2 text-sm">
+          Join the community of elite runners today
+        </p>
+      </div>
+      <div>
+        <form
+          className="grid grid-cols-2 gap-4"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <div className="grid grid-cols-1 gap-2">
+            <label>First Name</label>
+            <input
+              placeholder="Enter your first name"
+              className=" bg-zinc-900 border border-zinc-800 h-10 rounded-md text-md p-5  focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition-all placeholder:text-zinc-600 text-sm"
+              {...register("firstName")}
+            />
+            {errors.firstName && (
+              <p className="text-red-400 text-xs">{errors.firstName.message}</p>
+            )}
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            <label>Last Name</label>
+            <input
+              placeholder="Enter your last name"
+              className=" bg-zinc-900 border border-zinc-800 h-10 rounded-md text-md p-5 focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition-all placeholder:text-zinc-600 text-sm"
+              {...register("lastName")}
+            />
+            {errors.lastName && (
+              <p className="text-red-400 text-xs">{errors.lastName.message}</p>
+            )}
+          </div>
+          <div className="grid grid-cols-1 col-span-2 gap-2">
+            <label>Email Address</label>
+            <input
+              placeholder="your_email@example.com"
+              className=" bg-zinc-900 border border-zinc-800 h-10 rounded-md text-md p-5 focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition-all placeholder:text-zinc-600 text-sm"
+              {...register("email")}
+            />
+            {errors.email && (
+              <p className="text-red-400 text-xs">{errors.email.message}</p>
+            )}
+          </div>
+          <div className="grid grid-cols-1 col-span-2 gap-2">
+            <label>Password</label>
+            <input
+              type="password"
+              placeholder="Create your password"
+              className=" bg-zinc-900 border border-zinc-800 h-10 rounded-md text-md p-5 focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition-all placeholder:text-zinc-600 text-sm"
+              {...register("password")}
+            />
+            {errors.password && (
+              <p className="text-red-400 text-xs">{errors.password.message}</p>
+            )}
+          </div>
+          <div className="col-span-2 flex justify-center mt-4">
+            <button
+              type="submit"
+              className="bg-lime-400 text-black px-10 py-3 font-bold rounded-xl hover:cursor-pointer hover:bg-lime-300"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Creating your account..." : "Register"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
