@@ -1,6 +1,15 @@
 import { Link, NavLink } from "react-router";
+import { useAuthStore } from "../store/useAuthStore";
+import { apiClient } from "../config/apiClient";
 
 export default function Header() {
+  //For Logout
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+  const handleClickLogout = async () => {
+    await apiClient.post("/auth/logout");
+    clearAuth();
+  };
+
   const navItemStyle = ({ isActive }: { isActive: boolean }) => `
   px-4 py-2 rounded-lg text-[14px] font-bold transition-all duration-200
   ${
@@ -105,7 +114,10 @@ export default function Header() {
             >
               Login
             </Link> */}
-            <button className="bg-lime-400 text-black px-5 py-2 rounded-full text-[14px] font-black hover:bg-white transition-all shadow-[0_0_15px_rgba(163,230,53,0.2)] hover:cursor-pointer">
+            <button
+              className="bg-lime-400 text-black px-5 py-2 rounded-full text-[14px] font-black hover:bg-white transition-all shadow-[0_0_15px_rgba(163,230,53,0.2)] hover:cursor-pointer"
+              onClick={handleClickLogout}
+            >
               Logout
             </button>
           </div>

@@ -3,9 +3,9 @@ export default function SplashScreen() {
     <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#050505] overflow-hidden relative">
       {/* เอฟเฟกต์เส้นแสงวิ่งเบลอๆ ด้านหลัง (สร้างความรู้สึกเคลื่อนที่) */}
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-1/4 left-0 w-full h-1 bg-gradient-to-r from-transparent via-lime-400 to-transparent blur-sm animate-[pulse_3s_ease-in-out_infinite]" />
-        <div className="absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white to-transparent blur-sm animate-[pulse_2s_ease-in-out_infinite_0.5s]" />
-        <div className="absolute top-3/4 left-0 w-full h-1 bg-gradient-to-r from-transparent via-lime-400 to-transparent blur-sm animate-[pulse_3s_ease-in-out_infinite_1s]" />
+        <div className="absolute top-1/4 left-0 w-full h-1 bg-linear-to-r from-transparent via-lime-400 to-transparent blur-sm animate-[pulse_3s_ease-in-out_infinite]" />
+        <div className="absolute top-1/2 left-0 w-full h-1 bg-linear-to-r from-transparent via-white to-transparent blur-sm animate-[pulse_2s_ease-in-out_infinite_0.5s]" />
+        <div className="absolute top-3/4 left-0 w-full h-1 bg-linear-to-r from-transparent via-lime-400 to-transparent blur-sm animate-[pulse_3s_ease-in-out_infinite_1s]" />
       </div>
 
       {/* โลโก้หลัก: แยกตัวอักษรเพื่อใส่ Animation */}
