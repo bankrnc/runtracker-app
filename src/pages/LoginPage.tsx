@@ -33,6 +33,7 @@ export default function LoginPage() {
       toast.success("login successfully");
       navigate("/");
     } catch (err) {
+      console.error(err); // เพิ่มแค่บรรทัดนี้
       if (err instanceof AxiosError) {
         toast.error(
           typeof err.response?.data === "string"

@@ -1,6 +1,8 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import { IconCamera } from "../assets/icons";
 import { useAuthStore } from "../store/useAuthStore";
+import { apiClient } from "../config/apiClient";
+import { userSchema } from "../schemas/user.schema";
 
 export default function SetupProfilePage() {
   //////////////////////// 1. CLICK TO SELECT IMAGE ////////////////////////////////////////////////
@@ -27,6 +29,29 @@ export default function SetupProfilePage() {
     if (e.target.files) {
       setImage(e.target.files[0]);
     }
+  };
+
+  //////////////////////// 3. UPLOAD PICTURE INTO BACKEND ////////////////////////////////////////////////
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const [isPending, startTransition] = useTransition();
+
+  const handleClickUpload = () => {
+    if (!image) return;
+
+    const formData = new FormData();
+    formData.append("profileImage", image);
+
+    startTransition(async () => {
+      try {
+        const res = await apiClient.patch("/profile/upload", formData);
+
+        const updatePictureUser = userSchema.parse(res.data.user);
+        setAuth(updatePictureUser);
+        setImage(null);
+      } catch (err) {
+        console.error(err);
+      }
+    });
   };
 
   //สำหรับเอา user name ไปโชว์
@@ -60,11 +85,16 @@ export default function SetupProfilePage() {
           <div className="w-full h-full bg-linear-to-tr from-lime-400 to-emerald-500 rounded-full p-1 shadow-[0_0_40px_rgba(163,230,53,0.15)] transition-transform duration-500 group-hover:scale-110">
             <div className="w-full h-full bg-zinc-950 rounded-full flex items-center justify-center overflow-hidden border-4 border-zinc-950">
               {imageSrc ? (
+                // รูปที่เพิ่งเลือกใหม่ (ยังไม่ upload)
+                <img src={imageSrc} className="w-full h-full object-cover" />
+              ) : user?.profile?.imageUrl ? (
+                // รูปที่ upload แล้ว (จาก cloudinary)
                 <img
-                  src={imageSrc}
-                  className="w-full h-full overflow-hidden"
-                ></img>
+                  src={user.profile.imageUrl}
+                  className="w-full h-full object-cover"
+                />
               ) : (
+                // default ถ้าไม่มีรูปเลย
                 <span className="text-4xl grayscale transition-all duration-500 group-hover:grayscale-0">
                   👤
                 </span>
@@ -83,8 +113,36 @@ export default function SetupProfilePage() {
             onChange={onChangeImage}
           />
         </div>
+
+        {image && (
+          <div className="flex gap-4">
+            <button
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:cursor-pointer hover:bg-blue-400 transition-all"
+              onClick={handleClickUpload}
+              disabled={isPending}
+            >
+              {isPending ? (
+                <span className="animate-spin">Uploading...</span>
+              ) : (
+                "Upload"
+              )}
+            </button>
+            <button
+              className="px-4 py-2 bg-red-500 rounded-lg text-sm hover:cursor-pointer hover:bg-red-400 transition-all"
+              onClick={() => {
+                setImage(null);
+                if (fileInput.current) {
+                  //clear fileInput เพื่อให้เลือกรูปเดิมได้
+                  fileInput.current.value = "";
+                }
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
         <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.25em]">
-          {user?.firstName} {user?.lastName}
+          {user?.profile?.firstName} {user?.profile?.lastName}
         </p>
       </div>
     </div>

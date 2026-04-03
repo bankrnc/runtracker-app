@@ -24,6 +24,9 @@ export default function Header() {
   ${isActive ? "text-lime-400" : "text-zinc-500 hover:text-zinc-300"}
 `;
 
+  //สำหรับเอา user name ไปโชว์
+  const user = useAuthStore((state) => state.user);
+
   return (
     <header className="w-full bg-[#0a0a0a] border-b border-zinc-800 text-white">
       <div className="w-full max-w-screen-2xl mx-auto px-4 md:px-8 xl:px-12 h-20 flex items-center justify-between">
@@ -92,16 +95,26 @@ export default function Header() {
               Hi Athlete !
             </span>
             <span className="text-sm font-bold text-zinc-100 whitespace-nowrap">
-              User Name
+              {user?.profile?.firstName} {user?.profile?.lastName}
             </span>
           </div>
 
           {/* Avatar Circle */}
           <Link to="/profile">
             <div
-              className="h-10 w-10 rounded-full bg-linear-to-tr from-lime-400 to-green-500 border-2 border-zinc-900 shadow-lg transition-transform duration-300 ease-out 
+              className="h-12 w-12 p-0.5 rounded-full bg-linear-to-tr from-lime-400 to-green-500 border-2 border-zinc-900 shadow-lg transition-transform duration-300 ease-out 
   hover:scale-125"
-            />
+            >
+              <div className="w-full h-full bg-zinc-900 rounded-full overflow-hidden flex items-center justify-center">
+                {user?.profile?.imageUrl ? (
+                  <img src={user?.profile?.imageUrl} />
+                ) : (
+                  <span className="text-md grayscale  transition-all duration-500 group-hover:grayscale-0">
+                    👤
+                  </span>
+                )}
+              </div>
+            </div>
           </Link>
 
           <div className="h-6 w-px bg-zinc-800 hidden md:block" />

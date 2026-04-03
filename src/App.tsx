@@ -18,7 +18,11 @@ export default function App() {
         const res = await apiClient.get("/auth/me");
         const user = userSchema.parse(res.data.user);
         setAuth(user);
-      } catch (err) {
+      } catch (err: unknown) {
+        if (err instanceof AxiosError && err.response?.status === 401) {
+          return;
+        }
+
         if (err instanceof AxiosError) {
           toast.error(
             typeof err.response?.data === "string"
@@ -27,6 +31,7 @@ export default function App() {
           );
           return;
         }
+
         toast.error("something went wrong. try again later");
       } finally {
         setTimeout(() => {
