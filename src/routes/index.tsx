@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import RegisterPage from "../pages/RegisterPage";
 import LoginPage from "../pages/LoginPage";
-import UserInformPage from "../pages/UserInformPage";
 import HomePage from "../pages/HomePage";
 import ProfilePage from "../pages/ProfilePage";
 import MainLayout from "../layouts/MainLayout";
@@ -15,6 +14,7 @@ import BlogPage from "../pages/BlogPage";
 import AboutUsPage from "../pages/AboutUsPage";
 import ProtectedRoute from "../layouts/ProtectedRoute";
 import SharedLayout from "../layouts/SharedLayout";
+import SetupProfilePage from "../pages/SetupProfilePage";
 
 export const router = createBrowserRouter([
   {
@@ -48,7 +48,7 @@ export const router = createBrowserRouter([
           { path: "/actual", Component: ActualRunPage },
           { path: "/health", Component: HealthPage },
           { path: "/dashboard", Component: DashboardPage },
-          { path: "/user-inform", Component: UserInformPage },
+          { path: "/setup-profile", Component: SetupProfilePage },
         ],
       },
     ],
