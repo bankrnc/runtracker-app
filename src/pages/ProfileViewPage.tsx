@@ -1,5 +1,5 @@
-import { useMemo } from "react";
 import { useAuthStore } from "../store/useAuthStore";
+import { useHealthMetrics } from "../hooks/useHealthMetrics";
 
 interface ProfileViewProps {
   onEdit: () => void;
@@ -9,73 +9,7 @@ export default function ProfileViewPage({ onEdit }: ProfileViewProps) {
   const user = useAuthStore((state) => state.user);
   const profile = user?.profile;
 
-  const age = useMemo(() => {
-    if (!profile?.birthDate) return null;
-    const now = new Date();
-    return Math.floor(
-      (now.getTime() - new Date(profile.birthDate).getTime()) /
-        (1000 * 60 * 60 * 24 * 365.25),
-    );
-  }, [profile]);
-
-  const bmi =
-    profile?.height && profile?.weight
-      ? profile.weight / Math.pow(profile.height / 100, 2)
-      : null;
-
-  const getBmiLabel = (bmi: number) => {
-    if (bmi < 18.5)
-      return {
-        label: "Underweight",
-        color: "text-blue-400",
-        bg: "bg-blue-400",
-        description:
-          "Consider increasing caloric intake and strength training.",
-      };
-    if (bmi < 25)
-      return {
-        label: "Normal",
-        color: "text-lime-400",
-        bg: "bg-lime-400",
-        description: "Ideal range for endurance runners.",
-      };
-    if (bmi < 30)
-      return {
-        label: "Overweight",
-        color: "text-yellow-400",
-        bg: "bg-yellow-400",
-        description: "Focus on cardio and reducing caloric surplus.",
-      };
-    return {
-      label: "Obese",
-      color: "text-red-400",
-      bg: "bg-red-400",
-      description: "Consult a healthcare professional for guidance.",
-    };
-  };
-  const bmiInfo = bmi ? getBmiLabel(bmi) : null;
-
-  const tdee = (() => {
-    if (
-      !profile?.height ||
-      !profile?.weight ||
-      !age ||
-      !profile?.gender ||
-      !profile?.activityLevel
-    )
-      return null;
-    const bmr =
-      profile.gender === "male"
-        ? 10 * profile.weight + 6.25 * profile.height - 5 * age + 5
-        : 10 * profile.weight + 6.25 * profile.height - 5 * age - 161;
-    const multipliers: Record<string, number> = {
-      sedentary: 1.2,
-      lightly_active: 1.375,
-      moderately_active: 1.55,
-      very_active: 1.725,
-    };
-    return Math.round(bmr * (multipliers[profile.activityLevel] ?? 1.2));
-  })();
+  const { age, bmi, bmiInfo, tdee } = useHealthMetrics();
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-black text-white font-sans flex flex-col items-center px-4 py-6 gap-8">
