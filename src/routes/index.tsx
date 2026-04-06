@@ -14,7 +14,6 @@ import BlogPage from "../pages/BlogPage";
 import AboutUsPage from "../pages/AboutUsPage";
 import ProtectedRoute from "../layouts/ProtectedRoute";
 import SharedLayout from "../layouts/SharedLayout";
-import SetupProfilePage from "../pages/SetupProfilePage";
 
 export const router = createBrowserRouter([
   {
@@ -48,7 +47,6 @@ export const router = createBrowserRouter([
           { path: "/actual", Component: ActualRunPage },
           { path: "/health", Component: HealthPage },
           { path: "/dashboard", Component: DashboardPage },
-          { path: "/setup-profile", Component: SetupProfilePage },
         ],
       },
     ],
