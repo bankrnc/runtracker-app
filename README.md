@@ -1,73 +1,123 @@
-# React + TypeScript + Vite
+# VeloStep — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 19 frontend for the VeloStep running tracker app. AI-generated training programs, per-km run logging, health metrics, and session scoring.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
 
-## React Compiler
+| Layer | Technology |
+|---|---|
+| Framework | React 19 (with React Compiler) |
+| Language | TypeScript |
+| Routing | React Router v7 |
+| State | Zustand |
+| Forms | React Hook Form + Zod |
+| Styling | Tailwind CSS v4 |
+| HTTP | Axios |
+| Toasts | Sonner |
+| Build | Vite |
+| Package Manager | pnpm |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Project Structure
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── api/
+│   └── programApi.ts         # API calls for programs/sessions
+├── config/
+│   └── apiClient.ts          # Axios instance (baseURL, withCredentials)
+├── hooks/
+│   └── useHealthMetrics.ts   # BMI, BMR, TDEE, macros, HR zones
+├── layouts/
+│   ├── Header.tsx            # Nav + mobile sidebar
+│   ├── HeaderNotAuth.tsx     # Public header
+│   ├── MainLayout.tsx
+│   ├── ProtectedRoute.tsx
+│   ├── PublicOnly.tsx
+│   ├── SharedLayout.tsx
+│   └── SplashScreen.tsx
+├── pages/
+│   ├── DashboardPage.tsx
+│   ├── HealthPage.tsx        # BMI/BMR/TDEE/macros/HR zones
+│   ├── LoginPage.tsx
+│   ├── RegisterPage.tsx
+│   ├── ProfilePage.tsx       # Edit profile (wraps SetupProfilePage)
+│   ├── ProfileViewPage.tsx   # View profile
+│   ├── SetupProfilePage.tsx  # Profile setup form
+│   ├── ProgramPage.tsx       # Program list + AI generate form
+│   ├── ProgramDetailPage.tsx # Week tabs, session cards, log modal
+│   ├── BlogPage.tsx
+│   ├── AboutUsPage.tsx
+│   └── FeaturePage.tsx
+├── routes/
+│   └── index.tsx             # createBrowserRouter config
+├── schemas/
+│   └── program.schema.ts     # Zod schemas + TS interfaces + color maps
+└── store/
+    └── useAuthStore.ts       # Zustand auth store
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Key Features
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### AI Program Generation
+- User inputs goal (free text), level, days/week, start date
+- Backend calls Claude AI → returns 4-week structured JSON
+- Each session has segments with pace/HR targets per km range
+
+### Program Detail View
+- Week tabs navigation
+- Session cards showing segment plan (km range, pace, HR)
+- Log Run modal — per-km table input (pace `M:SS`, HR bpm)
+- Live score display after saving: score /10, avg pace, avg HR, distance
+
+### Health Page
+- Calculates BMI, BMR (Mifflin-St Jeor), TDEE, macros (25/50/25 split)
+- HR zones (5 zones based on max HR)
+- Requires complete profile (height, weight, DOB, gender, activity level)
+
+### Auth
+- JWT stored in httpOnly cookie (handled by backend)
+- Zustand store holds user state client-side
+- Protected routes redirect to login if not authenticated
+
+---
+
+## Session Types & Colors
+
+| Type | Color |
+|---|---|
+| Easy Run | Lime |
+| Tempo | Orange |
+| Interval | Red |
+| Long Run | Blue |
+| Recovery | Zinc |
+| Rest | Zinc (muted) |
+
+---
+
+## Getting Started
+
+```bash
+# Install dependencies
+pnpm install
+
+# Set up environment variable
+# Create .env file:
+VITE_API_URL=http://localhost:8888
+
+# Start dev server (port 5173)
+pnpm dev
 ```
+
+---
+
+## Notes
+
+- Uses **React Compiler** — no manual `useMemo`/`useCallback` needed
+- Pace format: `M:SS` (e.g. `5:30`) — validated on submit before sending to API
+- Dark theme only: `bg-black`, zinc palette, `lime-400` primary accent, `violet` for AI elements
