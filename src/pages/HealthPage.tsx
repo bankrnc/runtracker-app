@@ -41,7 +41,7 @@ export default function HealthPage() {
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-black text-white font-sans pb-20">
-      <main className="max-w-screen-xl mx-auto px-6 lg:px-12 pt-10">
+      <main className="max-w-7xl mx-auto px-6 lg:px-12 pt-10">
         {/* --- PAGE HEADER --- */}
         <section className="mb-10 lg:mb-12">
           <p className="text-[10px] font-bold tracking-widest uppercase text-lime-400 mb-2">
@@ -60,11 +60,10 @@ export default function HealthPage() {
 
         {/* --- DESKTOP: 2-COLUMN / MOBILE: SINGLE COLUMN --- */}
         <div className="flex flex-col lg:grid lg:grid-cols-[1fr_1.1fr] lg:gap-10">
-
           {/* === LEFT COLUMN === */}
           <div className="flex flex-col gap-6">
             {/* Physical Snapshot */}
-            <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-[2rem]">
+            <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-4xl">
               <div className="grid grid-cols-3 divide-x divide-zinc-800">
                 <MiniStat value={profile!.height!} unit="cm" label="Height" />
                 <MiniStat value={profile!.weight!} unit="kg" label="Weight" />
@@ -74,19 +73,23 @@ export default function HealthPage() {
 
             {/* BMI / BMR / TDEE */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-[2rem] space-y-2">
+              <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-4xl space-y-2">
                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
                   BMI
                 </span>
-                <p className={`text-2xl font-black ${bmiInfo?.color ?? "text-white"}`}>
+                <p
+                  className={`text-2xl font-black ${bmiInfo?.color ?? "text-white"}`}
+                >
                   {bmi!.toFixed(1)}
                 </p>
-                <p className={`text-[10px] font-bold uppercase ${bmiInfo?.color ?? "text-zinc-500"}`}>
+                <p
+                  className={`text-[10px] font-bold uppercase ${bmiInfo?.color ?? "text-zinc-500"}`}
+                >
                   {bmiInfo?.label}
                 </p>
               </div>
 
-              <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-[2rem] space-y-2">
+              <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-4xl space-y-2">
                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
                   BMR
                 </span>
@@ -98,7 +101,7 @@ export default function HealthPage() {
                 </p>
               </div>
 
-              <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-[2rem] space-y-2">
+              <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-4xl space-y-2">
                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
                   TDEE
                 </span>
@@ -112,7 +115,7 @@ export default function HealthPage() {
             </div>
 
             {/* Macros */}
-            <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-[2rem] space-y-4">
+            <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-4xl space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
                   Daily Macros
@@ -122,14 +125,32 @@ export default function HealthPage() {
                 </span>
               </div>
               <div className="grid grid-cols-3 divide-x divide-zinc-800">
-                <MacroStat value={macros!.protein} label="Protein" color="text-blue-400" pct={25} barColor="bg-blue-400" />
-                <MacroStat value={macros!.carb} label="Carbs" color="text-yellow-400" pct={50} barColor="bg-yellow-400" />
-                <MacroStat value={macros!.fat} label="Fat" color="text-orange-400" pct={25} barColor="bg-orange-400" />
+                <MacroStat
+                  value={macros!.protein}
+                  label="Protein"
+                  color="text-blue-400"
+                  pct={25}
+                  barColor="bg-blue-400"
+                />
+                <MacroStat
+                  value={macros!.carb}
+                  label="Carbs"
+                  color="text-yellow-400"
+                  pct={50}
+                  barColor="bg-yellow-400"
+                />
+                <MacroStat
+                  value={macros!.fat}
+                  label="Fat"
+                  color="text-orange-400"
+                  pct={25}
+                  barColor="bg-orange-400"
+                />
               </div>
             </div>
 
             {/* Activity Level */}
-            <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-[2rem] flex items-center justify-between">
+            <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-4xl flex items-center justify-between">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">
                   Activity Level
@@ -201,7 +222,7 @@ export default function HealthPage() {
             </section>
 
             {/* Coach Insight */}
-            <div className="bg-lime-400 p-6 rounded-[2rem] text-black">
+            <div className="bg-lime-400 p-6 rounded-4xl text-black">
               <h4 className="font-black italic uppercase text-lg mb-1">
                 Coach Insight
               </h4>
@@ -212,7 +233,6 @@ export default function HealthPage() {
               </p>
             </div>
           </div>
-
         </div>
       </main>
     </div>

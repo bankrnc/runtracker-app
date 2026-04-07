@@ -1,11 +1,10 @@
 import { createBrowserRouter } from "react-router";
 import RegisterPage from "../pages/RegisterPage";
 import LoginPage from "../pages/LoginPage";
-import HomePage from "../pages/HomePage";
 import ProfilePage from "../pages/ProfilePage";
 import MainLayout from "../layouts/MainLayout";
 import ProgramPage from "../pages/ProgramPage";
-import ActualRunPage from "../pages/ActualRunPage";
+import ProgramDetailPage from "../pages/ProgramDetailPage";
 import HealthPage from "../pages/HealthPage";
 import DashboardPage from "../pages/DashboardPage";
 import PublicOnly from "../layouts/PublicOnly";
@@ -41,10 +40,9 @@ export const router = createBrowserRouter([
       {
         Component: ProtectedRoute,
         children: [
-          { index: true, Component: HomePage },
           { path: "/profile", Component: ProfilePage },
           { path: "/program", Component: ProgramPage },
-          { path: "/actual", Component: ActualRunPage },
+          { path: "/program/:id", Component: ProgramDetailPage },
           { path: "/health", Component: HealthPage },
           { path: "/dashboard", Component: DashboardPage },
         ],

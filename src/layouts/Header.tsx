@@ -71,16 +71,9 @@ export default function Header() {
           </button>
 
           {/* 1. Logo Section */}
-          <Link to="/">
-            <div className="shrink-0">
-              <div
-                className="text-3xl font-black italic tracking-tighter text-lime-400 transition-transform duration-300 ease-out
-  hover:scale-125 hover:cursor-pointer"
-              >
-                Velo<span className="text-white">Step</span>
-              </div>
-            </div>
-          </Link>
+          <div className="shrink-0 text-3xl font-black italic tracking-tighter text-lime-400">
+            Velo<span className="text-white">Step</span>
+          </div>
 
           {/* 2. Navigation Section */}
           <nav className="hidden xl:flex items-center gap-1 2xl:gap-4">
@@ -91,9 +84,6 @@ export default function Header() {
               </NavLink>
               <NavLink to="/program" className={navItemStyle}>
                 Programs
-              </NavLink>
-              <NavLink to="/actual" className={navItemStyle}>
-                Tracking
               </NavLink>
               <NavLink to="/health" className={navItemStyle}>
                 Health
@@ -175,11 +165,9 @@ export default function Header() {
       >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between px-5 h-20 border-b border-zinc-800 shrink-0">
-          <Link to="/" onClick={() => setSidebarOpen(false)}>
-            <div className="text-2xl font-black italic tracking-tighter text-lime-400">
-              Velo<span className="text-white">Step</span>
-            </div>
-          </Link>
+          <div className="text-2xl font-black italic tracking-tighter text-lime-400">
+            Velo<span className="text-white">Step</span>
+          </div>
           <button
             className="p-2 text-zinc-400 hover:text-white transition-colors"
             onClick={() => setSidebarOpen(false)}
@@ -245,13 +233,6 @@ export default function Header() {
             onClick={() => setSidebarOpen(false)}
           >
             Programs
-          </NavLink>
-          <NavLink
-            to="/actual"
-            className={sidebarNavItemStyle}
-            onClick={() => setSidebarOpen(false)}
-          >
-            Tracking
           </NavLink>
           <NavLink
             to="/health"
