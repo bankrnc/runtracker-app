@@ -6,7 +6,7 @@ import { userSchema } from "../../schemas/user.schema";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { useAuthStore } from "../../store/useAuthStore";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 export default function LoginPage() {
   const {
@@ -50,12 +50,18 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col justify-center items-center p-6 gap-10  bg-black text-white font-sans ">
       <div className="flex flex-col justify-center items-center gap-5">
         <div className="flex items-center gap-2.5">
-          <svg className="w-7 h-6 text-lime-400" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeLinecap="round">
-            <path d="M2 4 Q9 1 22 4"  strokeWidth={2.2} />
+          <svg
+            className="w-7 h-6 text-lime-400"
+            viewBox="0 0 24 18"
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+          >
+            <path d="M2 4 Q9 1 22 4" strokeWidth={2.2} />
             <path d="M2 9 Q11 6 24 9" strokeWidth={2.2} />
             <path d="M2 14 Q8 11 18 14" strokeWidth={2.2} />
           </svg>
-          <h1 className="text-4xl font-black tracking-tighter text-white italic">
+          <h1 className="text-5xl font-black tracking-tighter text-white italic">
             Stride<span className="text-lime-400">Pilot</span>
           </h1>
         </div>
@@ -108,11 +114,18 @@ export default function LoginPage() {
           </button>
         </div>
       </form>
-      <div>
-        <p>Don't have an account?</p>
-        <div className="text-lime-400 font-bold hover:text-lime-300 transition-colors underline underline-offset-4 decoration-lime-400/30">
-          Create Account
-        </div>
+
+      <div className="flex flex-col items-center gap-2 mt-4">
+        <p className="text-zinc-500 text-sm tracking-wide">
+          Don't have an account?
+        </p>
+
+        <Link
+          to="/register"
+          className="text-lime-400 font-bold text-md tracking-tight hover:text-lime-300 transition-all underline underline-offset-4 decoration-lime-400/30"
+        >
+          Create your account
+        </Link>
       </div>
     </div>
   );
