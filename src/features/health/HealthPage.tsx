@@ -1,6 +1,6 @@
 import { Link } from "react-router";
-import { useAuthStore } from "../store/useAuthStore";
-import { useHealthMetrics } from "../hooks/useHealthMetrics";
+import { useAuthStore } from "../../store/useAuthStore";
+import { useHealthMetrics } from "../../hooks/useHealthMetrics";
 
 const ACTIVITY_ORDER = [
   "sedentary",

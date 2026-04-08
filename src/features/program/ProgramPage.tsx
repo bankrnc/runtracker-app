@@ -3,14 +3,14 @@ import { Link } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { programApi } from "../api/programApi";
+import { programApi } from "../../api/programApi";
 import {
   generateProgramSchema,
   type GenerateProgramInput,
   type Program,
   SESSION_TYPE_LABELS,
   SESSION_TYPE_BAR,
-} from "../schemas/program.schema";
+} from "../../schemas/program.schema";
 
 export default function ProgramPage() {
   const [programs, setPrograms] = useState<Program[]>([]);

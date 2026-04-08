@@ -1,4 +1,4 @@
-import { apiClient } from "../config/apiClient";
+import { apiClient } from "../lib/apiClient";
 import type { PostCard, PostDetail } from "../schemas/blog.schema";
 
 export const blogApi = {

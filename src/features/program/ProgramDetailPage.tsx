@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router";
 import { toast } from "sonner";
-import { programApi } from "../api/programApi";
+import { programApi } from "../../api/programApi";
 import {
   type Program,
   type Session,
@@ -10,7 +10,7 @@ import {
   SESSION_TYPE_LABELS,
   SESSION_TYPE_COLORS,
   SESSION_TYPE_BAR,
-} from "../schemas/program.schema";
+} from "../../schemas/program.schema";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 

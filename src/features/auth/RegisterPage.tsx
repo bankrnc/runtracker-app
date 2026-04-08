@@ -1,8 +1,8 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { registerSchema, type RegisterInput } from "../schemas/register.schema";
+import { registerSchema, type RegisterInput } from "../../schemas/register.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router";
-import { apiClient } from "../config/apiClient";
+import { apiClient } from "../../lib/apiClient";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 
@@ -53,9 +53,16 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 gap-10">
       <div className="flex flex-col justify-center items-center gap-1">
-        <h1 className="text-3xl font-black tracking-tighter text-lime-400 italic mb-2">
-          VeloStep
-        </h1>
+        <div className="flex items-center gap-2.5 mb-2">
+          <svg className="w-6 h-5 text-lime-400" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeLinecap="round">
+            <path d="M2 4 Q9 1 22 4"  strokeWidth={2.2} />
+            <path d="M2 9 Q11 6 24 9" strokeWidth={2.2} />
+            <path d="M2 14 Q8 11 18 14" strokeWidth={2.2} />
+          </svg>
+          <h1 className="text-3xl font-black tracking-tighter text-white italic">
+            Stride<span className="text-lime-400">Pilot</span>
+          </h1>
+        </div>
         <h2 className="text-2xl font-bold tracking-tight">
           Create your account
         </h2>

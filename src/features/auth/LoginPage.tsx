@@ -1,11 +1,11 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { loginSchema, type LoginInput } from "../schemas/login.shcema";
+import { loginSchema, type LoginInput } from "../../schemas/login.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { apiClient } from "../config/apiClient";
-import { userSchema } from "../schemas/user.schema";
+import { apiClient } from "../../lib/apiClient";
+import { userSchema } from "../../schemas/user.schema";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuthStore } from "../../store/useAuthStore";
 import { useNavigate } from "react-router";
 
 export default function LoginPage() {
@@ -49,9 +49,16 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center p-6 gap-10  bg-black text-white font-sans ">
       <div className="flex flex-col justify-center items-center gap-5">
-        <h1 className="text-5xl font-black tracking-tighter text-white italic">
-          VeloStep
-        </h1>
+        <div className="flex items-center gap-2.5">
+          <svg className="w-7 h-6 text-lime-400" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeLinecap="round">
+            <path d="M2 4 Q9 1 22 4"  strokeWidth={2.2} />
+            <path d="M2 9 Q11 6 24 9" strokeWidth={2.2} />
+            <path d="M2 14 Q8 11 18 14" strokeWidth={2.2} />
+          </svg>
+          <h1 className="text-4xl font-black tracking-tighter text-white italic">
+            Stride<span className="text-lime-400">Pilot</span>
+          </h1>
+        </div>
         <p className="text-zinc-400 text-sm font-medium">
           Welcome back, athlete
         </p>
@@ -71,7 +78,7 @@ export default function LoginPage() {
           </label>
           <input
             className=" bg-zinc-900/40 border border-zinc-800 h-12 rounded-xl text-md p-6 focus:outline-none focus:border-lime-400/50 focus:ring-1 focus:ring-lime-400/20 transition-all placeholder:text-zinc-700 text-sm"
-            placeholder="runner@velostep.com"
+            placeholder="runner@stridepilot.com"
             {...register("email")}
           />
           {errors.email && (

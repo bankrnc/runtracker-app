@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, useTransition } from "react";
-import { IconCalendar, IconCamera } from "../assets/icons";
-import { useAuthStore } from "../store/useAuthStore";
-import { apiClient } from "../config/apiClient";
-import { userSchema } from "../schemas/user.schema";
+import { IconCalendar, IconCamera } from "../../components/icons";
+import { useAuthStore } from "../../store/useAuthStore";
+import { apiClient } from "../../lib/apiClient";
+import { userSchema } from "../../schemas/user.schema";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { profileSchema, type ProfileForm } from "../schemas/profile.schema";
+import { profileSchema, type ProfileForm } from "../../schemas/profile.schema";
 
 type ProfileEditFormProps = {
   onDone: () => void;

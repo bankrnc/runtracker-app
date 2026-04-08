@@ -3,7 +3,7 @@ import { router } from "./routes";
 import { toast, Toaster } from "sonner";
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect, useState } from "react";
-import { apiClient } from "./config/apiClient";
+import { apiClient } from "./lib/apiClient";
 import { userSchema } from "./schemas/user.schema";
 import { AxiosError } from "axios";
 import SplashScreen from "./layouts/SplashScreen";

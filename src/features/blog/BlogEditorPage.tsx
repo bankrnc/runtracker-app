@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
-import { blogApi } from "../api/blogApi";
-import type { PostDetail } from "../schemas/blog.schema";
+import { blogApi } from "../../api/blogApi";
+import type { PostDetail } from "../../schemas/blog.schema";
 
 export default function BlogEditorPage() {
   const { id } = useParams<{ id?: string }>();

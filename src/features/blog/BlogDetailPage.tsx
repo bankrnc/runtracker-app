@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router";
 import { toast } from "sonner";
-import { blogApi } from "../api/blogApi";
-import type { PostDetail } from "../schemas/blog.schema";
+import { blogApi } from "../../api/blogApi";
+import type { PostDetail } from "../../schemas/blog.schema";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -78,7 +78,7 @@ export default function BlogDetailPage() {
       {post.coverUrl && (
         <div className="w-full max-h-80 overflow-hidden">
           <img src={post.coverUrl} alt={post.title} className="w-full h-80 object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 pointer-events-none" />
+          <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/60 pointer-events-none" />
         </div>
       )}
 
@@ -121,7 +121,7 @@ export default function BlogDetailPage() {
             <p className="text-sm font-bold text-zinc-200">
               {post.author?.profile
                 ? `${post.author.profile.firstName} ${post.author.profile.lastName}`
-                : "VeloStep Team"}
+                : "StridePilot Team"}
             </p>
             <p className="text-[10px] text-zinc-600">{formatDate(post.createdAt)}</p>
           </div>

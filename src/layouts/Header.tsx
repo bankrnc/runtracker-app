@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router";
 import { useAuthStore } from "../store/useAuthStore";
-import { apiClient } from "../config/apiClient";
+import { apiClient } from "../lib/apiClient";
 
 export default function Header() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -71,8 +71,15 @@ export default function Header() {
           </button>
 
           {/* 1. Logo Section */}
-          <div className="shrink-0 text-3xl font-black italic tracking-tighter text-lime-400">
-            Velo<span className="text-white">Step</span>
+          <div className="shrink-0 flex items-center gap-2">
+            <svg className="w-6 h-5 text-lime-400" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeLinecap="round">
+              <path d="M2 4 Q9 1 22 4"  strokeWidth={2.2} />
+              <path d="M2 9 Q11 6 24 9" strokeWidth={2.2} />
+              <path d="M2 14 Q8 11 18 14" strokeWidth={2.2} />
+            </svg>
+            <span className="text-2xl font-black italic tracking-tighter text-white">
+              Stride<span className="text-lime-400">Pilot</span>
+            </span>
           </div>
 
           {/* 2. Navigation Section */}
@@ -165,8 +172,15 @@ export default function Header() {
       >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between px-5 h-20 border-b border-zinc-800 shrink-0">
-          <div className="text-2xl font-black italic tracking-tighter text-lime-400">
-            Velo<span className="text-white">Step</span>
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-4 text-lime-400" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeLinecap="round">
+              <path d="M2 4 Q9 1 22 4"  strokeWidth={2.2} />
+              <path d="M2 9 Q11 6 24 9" strokeWidth={2.2} />
+              <path d="M2 14 Q8 11 18 14" strokeWidth={2.2} />
+            </svg>
+            <span className="text-xl font-black italic tracking-tighter text-white">
+              Stride<span className="text-lime-400">Pilot</span>
+            </span>
           </div>
           <button
             className="p-2 text-zinc-400 hover:text-white transition-colors"

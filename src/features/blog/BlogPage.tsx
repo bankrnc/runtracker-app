@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
-import { blogApi } from "../api/blogApi";
-import { useAuthStore } from "../store/useAuthStore";
-import type { PostCard } from "../schemas/blog.schema";
+import { blogApi } from "../../api/blogApi";
+import { useAuthStore } from "../../store/useAuthStore";
+import type { PostCard } from "../../schemas/blog.schema";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -14,7 +14,7 @@ function formatDate(iso: string) {
 }
 
 function AuthorName({ author }: { author: PostCard["author"] }) {
-  if (!author?.profile) return <span>VeloStep Team</span>;
+  if (!author?.profile) return <span>StridePilot Team</span>;
   return <span>{author.profile.firstName} {author.profile.lastName}</span>;
 }
 

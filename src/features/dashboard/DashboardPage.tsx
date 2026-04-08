@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { programApi } from "../api/programApi";
-import { useHealthMetrics } from "../hooks/useHealthMetrics";
-import type { Program } from "../schemas/program.schema";
-import { SESSION_TYPE_LABELS, SESSION_TYPE_BAR } from "../schemas/program.schema";
+import { programApi } from "../../api/programApi";
+import { useHealthMetrics } from "../../hooks/useHealthMetrics";
+import type { Program } from "../../schemas/program.schema";
+import { SESSION_TYPE_LABELS, SESSION_TYPE_BAR } from "../../schemas/program.schema";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
