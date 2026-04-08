@@ -231,7 +231,7 @@ function SessionCard({ session, onLog }: { session: Session; onLog: () => void }
       </span>
 
       {/* Segments plan */}
-      {!isRest && session.segments.length > 0 && (
+      {!isRest && session.type !== "interval" && session.segments.length > 0 && (
         <div className="space-y-1.5">
           {session.segments.map((seg, i) => (
             <div key={i} className="flex items-center gap-2">
@@ -249,17 +249,54 @@ function SessionCard({ session, onLog }: { session: Session; onLog: () => void }
           ))}
           {session.plannedDistance && (
             <p className="text-[10px] text-zinc-600 mt-1">
-              {session.type === "interval"
-                ? `${session.plannedDistance} sets`
-                : `Total: ${session.plannedDistance} km`}
+              Total: {session.plannedDistance} km
             </p>
           )}
         </div>
       )}
 
-      {session.description && (
+      {/* Interval: show set count + pace target */}
+      {!isRest && session.type === "interval" && (
+        <div className="space-y-1.5">
+          {session.plannedDistance && (
+            <div className="flex items-center gap-2">
+              <div className={`w-0.5 h-4 rounded-full shrink-0 ${SESSION_TYPE_BAR[session.type]}`} />
+              <div className="flex flex-col">
+                <span className="text-[10px] text-zinc-500">{session.plannedDistance} sets</span>
+                {session.segments[0] && (
+                  <span className="text-xs font-bold text-zinc-300">
+                    {session.segments[0].paceMin && session.segments[0].paceMax
+                      ? `${session.segments[0].paceMin}–${session.segments[0].paceMax}/km`
+                      : session.segments[0].paceMax
+                        ? `≤${session.segments[0].paceMax}/km`
+                        : ""}
+                    {session.segments[0].hrMax ? ` · <${session.segments[0].hrMax}bpm` : ""}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {session.description && session.type !== "interval" && (
         <p className="text-xs text-zinc-500 leading-relaxed line-clamp-2">{session.description}</p>
       )}
+
+      {/* Interval: highlight rest time from description */}
+      {session.type === "interval" && session.description && (() => {
+        const restMatch = session.description.match(/(\d+[\w:]*\s*(?:s|sec|min|mins|minutes|seconds|:\d+)?\s*(?:rest|recovery)[^,.]*)/i);
+        return restMatch ? (
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 self-start">
+            <svg className="w-3 h-3 text-zinc-400 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="text-[10px] font-bold text-zinc-400">{restMatch[1].trim()}</span>
+          </div>
+        ) : (
+          <p className="text-xs text-zinc-500 leading-relaxed line-clamp-2">{session.description}</p>
+        );
+      })()}
 
       {/* Log summary */}
       {isDone && (
@@ -311,9 +348,9 @@ function LogModal({
   onLogged: (sessionId: number, kmLogs: KmLog[], score: number) => void;
 }) {
   const isInterval = session.type === "interval";
-  // Intervals: rows = number of sets (segments.length); others: rows = planned km
+  // Intervals: rows = plannedDistance (number of sets); others: rows = planned km
   const totalRows = isInterval
-    ? session.segments.length || Math.ceil(session.plannedDistance ?? 4)
+    ? Math.ceil(session.plannedDistance ?? (session.segments.length || 4))
     : session.plannedDistance ? Math.ceil(session.plannedDistance) : 5;
 
   // init rows: pre-fill from existing logs
