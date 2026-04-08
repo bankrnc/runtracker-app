@@ -83,6 +83,7 @@ export interface Program {
   level: string;
   startDate: string;
   createdAt: string;
+  suggestion: string | null;
   weeks: Week[];
 }
 
@@ -92,9 +93,19 @@ export const generateProgramSchema = z.object({
   level: z.enum(["beginner", "intermediate", "advanced"]),
   daysPerWeek: z.number().int().min(3).max(6),
   startDate: z.string().min(1, "Please select a start date"),
+  // Optional personal best — string so HTML inputs work natively; converted in onSubmit
+  bestDistance: z.string().optional(),
+  bestPace: z.string().optional(),
+  bestHr: z.string().optional(),
 });
 
 export type GenerateProgramInput = z.infer<typeof generateProgramSchema>;
+
+// Type for the actual API call (numbers properly typed)
+export type ProgramApiInput = Omit<GenerateProgramInput, "bestDistance" | "bestHr"> & {
+  bestDistance?: number;
+  bestHr?: number;
+};
 
 export const kmLogEntrySchema = z.object({
   kmNumber: z.number().int().positive(),

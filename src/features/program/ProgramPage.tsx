@@ -7,16 +7,68 @@ import { programApi } from "../../api/programApi";
 import {
   generateProgramSchema,
   type GenerateProgramInput,
+  type ProgramApiInput,
   type Program,
   SESSION_TYPE_LABELS,
   SESSION_TYPE_BAR,
 } from "../../schemas/program.schema";
+
+const GENERATING_MESSAGES = [
+  "Analyzing your goal...",
+  "Building your 4-week plan...",
+  "Calibrating pace & HR zones...",
+  "Balancing weekly load...",
+  "Almost ready...",
+];
+
+function GeneratingOverlay() {
+  const [msgIndex, setMsgIndex] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setMsgIndex((i) => (i + 1) % GENERATING_MESSAGES.length);
+    }, 2200);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050505] overflow-hidden">
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
+        <div className="absolute top-1/4 left-0 w-full h-px bg-linear-to-r from-transparent via-lime-400 to-transparent blur-sm animate-[pulse_3s_ease-in-out_infinite]" />
+        <div className="absolute top-1/2 left-0 w-full h-px bg-linear-to-r from-transparent via-white to-transparent blur-sm animate-[pulse_2s_ease-in-out_infinite_0.5s]" />
+        <div className="absolute top-3/4 left-0 w-full h-px bg-linear-to-r from-transparent via-lime-400 to-transparent blur-sm animate-[pulse_3s_ease-in-out_infinite_1s]" />
+      </div>
+      <div className="relative flex items-center gap-2.5 mb-10">
+        <svg className="w-8 h-6 text-lime-400" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeLinecap="round">
+          <path d="M2 4 Q9 1 22 4" strokeWidth={2.2} />
+          <path d="M2 9 Q11 6 24 9" strokeWidth={2.2} />
+          <path d="M2 14 Q8 11 18 14" strokeWidth={2.2} />
+        </svg>
+        <span className="text-4xl font-black italic tracking-tighter text-white">
+          Stride<span className="text-lime-400">Pilot</span>
+        </span>
+        <div className="absolute inset-0 bg-lime-500/20 blur-2xl rounded-full scale-150 animate-pulse pointer-events-none" />
+      </div>
+      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 mb-8">
+        <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse block" />
+        <span className="text-[10px] font-black tracking-widest uppercase text-violet-400">AI Coach</span>
+      </div>
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-6 h-6 border-2 border-zinc-700 border-t-lime-400 rounded-full animate-spin" />
+        <p className="text-sm font-medium text-zinc-400 tracking-widest text-center">
+          {GENERATING_MESSAGES[msgIndex]}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export default function ProgramPage() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [suggestion, setSuggestion] = useState<string | null>(null);
 
   const {
     register,
@@ -38,11 +90,19 @@ export default function ProgramPage() {
 
   const onSubmit = async (data: GenerateProgramInput) => {
     setGenerating(true);
+    setSuggestion(null);
     try {
-      const program = await programApi.generate(data);
+      const apiData: ProgramApiInput = {
+        ...data,
+        bestDistance: data.bestDistance ? parseFloat(data.bestDistance) : undefined,
+        bestPace: data.bestPace?.trim() || undefined,
+        bestHr: data.bestHr ? parseInt(data.bestHr) : undefined,
+      };
+      const program = await programApi.generate(apiData);
       setPrograms((prev) => [program, ...prev]);
       setShowForm(false);
       reset();
+      if (program.suggestion) setSuggestion(program.suggestion);
       toast.success("Program generated!");
     } catch {
       toast.error("Failed to generate program. Please try again.");
@@ -59,6 +119,8 @@ export default function ProgramPage() {
   };
 
   return (
+    <>
+      {generating && <GeneratingOverlay />}
     <div className="min-h-[calc(100vh-80px)] bg-black text-white font-sans pb-20">
       <main className="max-w-7xl mx-auto px-6 lg:px-12 pt-10">
 
@@ -186,6 +248,53 @@ export default function ProgramPage() {
                   </div>
                 </div>
 
+                {/* Personal Best section */}
+                <div className="border-t border-zinc-800 pt-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-3">
+                    Your Best Performance{" "}
+                    <span className="text-zinc-700 normal-case tracking-normal font-normal">
+                      (optional — helps AI calibrate intensity)
+                    </span>
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 mb-1.5 block">
+                        Best Distance (km)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        {...register("bestDistance")}
+                        placeholder="e.g. 10"
+                        className="w-full bg-zinc-800/60 border border-zinc-700/60 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-700 focus:outline-none focus:border-violet-500 transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 mb-1.5 block">
+                        Avg Pace (M:SS /km)
+                      </label>
+                      <input
+                        {...register("bestPace")}
+                        placeholder="e.g. 5:30"
+                        className="w-full bg-zinc-800/60 border border-zinc-700/60 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-700 focus:outline-none focus:border-violet-500 transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 mb-1.5 block">
+                        Avg HR (bpm)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        {...register("bestHr")}
+                        placeholder="e.g. 155"
+                        className="w-full bg-zinc-800/60 border border-zinc-700/60 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-700 focus:outline-none focus:border-violet-500 transition-colors"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <button
                   type="submit"
                   disabled={generating}
@@ -194,6 +303,30 @@ export default function ProgramPage() {
                   {generating ? "Generating... (takes ~10s)" : "Generate Program →"}
                 </button>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* AI Coach Suggestion Banner */}
+        {suggestion && (
+          <div className="mb-6 relative bg-amber-500/8 border border-amber-500/25 rounded-2xl p-5 overflow-hidden">
+            <div className="absolute -top-8 -right-8 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative flex items-start gap-3">
+              <span className="text-amber-400 text-base shrink-0 mt-0.5">⚠</span>
+              <div className="flex-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-amber-400 mb-1.5">
+                  Coach Note
+                </p>
+                <p className="text-sm text-zinc-300 leading-relaxed">{suggestion}</p>
+              </div>
+              <button
+                onClick={() => setSuggestion(null)}
+                className="text-zinc-600 hover:text-zinc-400 transition-colors shrink-0 hover:cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
           </div>
         )}
@@ -229,6 +362,7 @@ export default function ProgramPage() {
         )}
       </main>
     </div>
+    </>
   );
 }
 

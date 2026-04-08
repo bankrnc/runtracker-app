@@ -1,13 +1,13 @@
 import { apiClient } from "../lib/apiClient";
 import type {
-  GenerateProgramInput,
+  ProgramApiInput,
   KmLog,
   LogKmInput,
   Program,
 } from "../schemas/program.schema";
 
 export const programApi = {
-  generate: async (data: GenerateProgramInput): Promise<Program> => {
+  generate: async (data: ProgramApiInput): Promise<Program> => {
     const res = await apiClient.post<{ program: Program }>("/programs/generate", data);
     return res.data.program;
   },

@@ -1,5 +1,12 @@
+import { useState } from "react";
+import ProfileViewPage from "./ProfileViewPage";
 import SetupProfilePage from "./SetupProfilePage";
 
 export default function ProfilePage() {
-  return <SetupProfilePage onDone={() => {}} />;
+  const [isEditing, setIsEditing] = useState(false);
+  return isEditing ? (
+    <SetupProfilePage onDone={() => setIsEditing(false)} />
+  ) : (
+    <ProfileViewPage onEdit={() => setIsEditing(true)} />
+  );
 }

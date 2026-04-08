@@ -68,6 +68,14 @@ export default function ProgramDetailPage() {
     ? Math.round((completed / trainingSessions.length) * 100)
     : 0;
 
+  // Consecutive low-score detection
+  const sortedCompleted = program.weeks
+    .flatMap((w, wi) => w.sessions.map((s) => ({ ...s, weekIdx: wi })))
+    .filter((s) => s.type !== "rest" && s.kmLogs.length > 0)
+    .sort((a, b) => a.weekIdx - b.weekIdx || a.dayNumber - b.dayNumber);
+  const last3 = sortedCompleted.slice(-3);
+  const showRegenHint = last3.length === 3 && last3.every((s) => (s.score ?? 0) < 5);
+
   const currentWeek = program.weeks[activeWeek];
 
   return (
@@ -100,6 +108,45 @@ export default function ProgramDetailPage() {
           </div>
           <div className="mt-4 h-px bg-zinc-800" />
         </section>
+
+        {/* AI Suggestion Banner */}
+        {program.suggestion && (
+          <div className="mb-6 bg-violet-500/8 border border-violet-500/20 rounded-2xl p-5">
+            <p className="text-[10px] font-black uppercase tracking-widest text-violet-400 mb-1.5">
+              Coach Note
+            </p>
+            <p className="text-sm text-zinc-300 leading-relaxed">{program.suggestion}</p>
+          </div>
+        )}
+
+        {/* Consecutive Low Score Warning */}
+        {showRegenHint && (
+          <div className="mb-6 bg-amber-500/8 border border-amber-500/25 rounded-2xl p-5">
+            <div className="flex items-start gap-3">
+              <span className="text-amber-400 text-base shrink-0 mt-0.5">⚠</span>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-amber-400 mb-1.5">
+                  Training Load Warning
+                </p>
+                <p className="text-sm text-zinc-300 leading-relaxed">
+                  Your last 3 sessions all scored below 5/10 — this may signal the program is too intense for your current base fitness.
+                </p>
+                <p className="text-xs text-zinc-500 mt-2 leading-relaxed">
+                  Consider generating a new program with your most recent performance stats and a slightly more modest goal. Training beyond your base risks overuse injury.
+                </p>
+                <Link
+                  to="/program"
+                  className="inline-flex items-center gap-1.5 mt-3 text-[11px] font-black uppercase tracking-widest text-amber-400 hover:text-white transition-colors"
+                >
+                  Generate New Program
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Week Tabs */}
         <div className="flex gap-2 mb-8 overflow-x-auto pb-1">
@@ -202,7 +249,9 @@ function SessionCard({ session, onLog }: { session: Session; onLog: () => void }
           ))}
           {session.plannedDistance && (
             <p className="text-[10px] text-zinc-600 mt-1">
-              Total: {session.plannedDistance} km
+              {session.type === "interval"
+                ? `${session.plannedDistance} sets`
+                : `Total: ${session.plannedDistance} km`}
             </p>
           )}
         </div>
@@ -261,10 +310,14 @@ function LogModal({
   onClose: () => void;
   onLogged: (sessionId: number, kmLogs: KmLog[], score: number) => void;
 }) {
-  const totalKm = session.plannedDistance ? Math.ceil(session.plannedDistance) : 5;
+  const isInterval = session.type === "interval";
+  // Intervals: rows = number of sets (segments.length); others: rows = planned km
+  const totalRows = isInterval
+    ? session.segments.length || Math.ceil(session.plannedDistance ?? 4)
+    : session.plannedDistance ? Math.ceil(session.plannedDistance) : 5;
 
   // init rows: pre-fill from existing logs
-  const initRows = Array.from({ length: totalKm }, (_, i) => {
+  const initRows = Array.from({ length: totalRows }, (_, i) => {
     const existing = session.kmLogs.find((l) => l.kmNumber === i + 1);
     return {
       kmNumber: i + 1,
@@ -331,7 +384,9 @@ function LogModal({
             <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-0.5">
               Day {session.dayNumber} · {SESSION_TYPE_LABELS[session.type]}
             </p>
-            <h3 className="font-black text-lg">Log Run · {totalKm} km</h3>
+            <h3 className="font-black text-lg">
+              {isInterval ? `Log Intervals · ${totalRows} sets` : `Log Run · ${totalRows} km`}
+            </h3>
           </div>
           <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors hover:cursor-pointer">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -342,7 +397,7 @@ function LogModal({
 
         {/* Column headers */}
         <div className="grid grid-cols-[40px_1fr_100px_90px] gap-2 px-6 py-2 shrink-0">
-          <span className="text-[10px] font-bold text-zinc-600 uppercase">Km</span>
+          <span className="text-[10px] font-bold text-zinc-600 uppercase">{isInterval ? "Set" : "Km"}</span>
           <span className="text-[10px] font-bold text-zinc-600 uppercase">Target</span>
           <span className="text-[10px] font-bold text-zinc-600 uppercase">Pace /km</span>
           <span className="text-[10px] font-bold text-zinc-600 uppercase">HR bpm</span>
@@ -354,10 +409,10 @@ function LogModal({
             const seg = getSegment(row.kmNumber);
             return (
               <div key={row.kmNumber} className="grid grid-cols-[40px_1fr_100px_90px] gap-2 items-center">
-                {/* Km number */}
+                {/* Km / Set number */}
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black ${
                   row.actualPace || row.actualHr ? "bg-lime-400 text-black" : "bg-zinc-800 text-zinc-500"
-                }`}>
+                }`} title={isInterval ? `Set ${row.kmNumber}` : `km ${row.kmNumber}`}>
                   {row.kmNumber}
                 </div>
 
