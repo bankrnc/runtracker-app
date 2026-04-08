@@ -11,7 +11,7 @@ export default function PublicOnly() {
     location.pathname === "/login" || location.pathname === "/register";
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (

@@ -31,7 +31,7 @@ export default function LoginPage() {
       const user = userSchema.parse(res.data.user);
       setAuth(user);
       toast.success("login successfully");
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       console.error(err); // เพิ่มแค่บรรทัดนี้
       if (err instanceof AxiosError) {

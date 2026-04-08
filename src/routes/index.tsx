@@ -10,6 +10,8 @@ import DashboardPage from "../pages/DashboardPage";
 import PublicOnly from "../layouts/PublicOnly";
 import FeaturePage from "../pages/FeaturePage";
 import BlogPage from "../pages/BlogPage";
+import BlogDetailPage from "../pages/BlogDetailPage";
+import BlogEditorPage from "../pages/BlogEditorPage";
 import AboutUsPage from "../pages/AboutUsPage";
 import ProtectedRoute from "../layouts/ProtectedRoute";
 import SharedLayout from "../layouts/SharedLayout";
@@ -24,6 +26,7 @@ export const router = createBrowserRouter([
         Component: SharedLayout,
         children: [
           { path: "/blog", Component: BlogPage },
+          { path: "/blog/:slug", Component: BlogDetailPage },
           { path: "/about", Component: AboutUsPage },
         ],
       },
@@ -45,6 +48,8 @@ export const router = createBrowserRouter([
           { path: "/program/:id", Component: ProgramDetailPage },
           { path: "/health", Component: HealthPage },
           { path: "/dashboard", Component: DashboardPage },
+          { path: "/blog/new", Component: BlogEditorPage },
+          { path: "/blog/edit/:id", Component: BlogEditorPage },
         ],
       },
     ],
