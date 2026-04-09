@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { programApi } from "../../api/programApi";
+import { useAuthStore } from "../../store/useAuthStore";
 import {
   generateProgramSchema,
   type GenerateProgramInput,
@@ -64,11 +65,14 @@ function GeneratingOverlay() {
 }
 
 export default function ProgramPage() {
+  const user = useAuthStore((s) => s.user);
+  const isPro = user?.role === "admin" || user?.tier === "pro";
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [suggestion, setSuggestion] = useState<string | null>(null);
+  const [lockHovered, setLockHovered] = useState(false);
 
   const {
     register,
@@ -153,11 +157,31 @@ export default function ProgramPage() {
                   >
                     Cancel
                   </button>
-                ) : (
+                ) : isPro ? (
                   <button
                     onClick={() => setShowForm(true)}
                     className="px-7 py-3 rounded-full font-black text-sm uppercase tracking-widest bg-lime-400 text-black hover:bg-white transition-all active:scale-95 hover:cursor-pointer shadow-[0_0_20px_rgba(163,230,53,0.2)]"
                   >
+                    Generate Program
+                  </button>
+                ) : (
+                  <button
+                    onMouseEnter={() => setLockHovered(true)}
+                    onMouseLeave={() => setLockHovered(false)}
+                    onClick={() => toast.info("Pro tier required — contact the admin to upgrade")}
+                    className="group flex items-center gap-2 px-7 py-3 rounded-full font-black text-sm uppercase tracking-widest bg-zinc-800 border border-zinc-700 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300 transition-all active:scale-95 hover:cursor-pointer"
+                  >
+                    {lockHovered ? (
+                      <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path strokeLinecap="round" d="M7 11V7a5 5 0 0 1 9.9-1" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path strokeLinecap="round" d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
+                    )}
                     Generate Program
                   </button>
                 )}

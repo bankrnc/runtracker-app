@@ -72,8 +72,14 @@ export default function Header() {
 
           {/* 1. Logo Section */}
           <div className="shrink-0 flex items-center gap-2">
-            <svg className="w-6 h-5 text-lime-400" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeLinecap="round">
-              <path d="M2 4 Q9 1 22 4"  strokeWidth={2.2} />
+            <svg
+              className="w-6 h-5 text-lime-400"
+              viewBox="0 0 24 18"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+            >
+              <path d="M2 4 Q9 1 22 4" strokeWidth={2.2} />
               <path d="M2 9 Q11 6 24 9" strokeWidth={2.2} />
               <path d="M2 14 Q8 11 18 14" strokeWidth={2.2} />
             </svg>
@@ -111,13 +117,24 @@ export default function Header() {
           {/* 3. Right Section: User & Auth */}
           <div className="flex items-center gap-3 sm:gap-5 shrink-0">
             {/* User Text - Hidden on mid-screens to prevent overlapping */}
-            <div className="hidden 2xl:flex flex-col items-end leading-none">
-              <span className="text-[10px] text-zinc-500  font-bold tracking-widest mb-1 whitespace-nowrap">
+            <div className="hidden 2xl:flex flex-col items-end leading-none gap-1">
+              <span className="text-[10px] text-zinc-500 font-bold tracking-widest whitespace-nowrap">
                 Hi Athlete !
               </span>
-              <span className="text-sm font-bold text-zinc-100 whitespace-nowrap">
-                {user?.profile?.firstName} {user?.profile?.lastName}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span
+                  className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${
+                    user?.tier === "pro"
+                      ? "text-amber-400 bg-amber-400/10 border-amber-400/30"
+                      : "text-zinc-600 bg-zinc-800/50 border-zinc-700"
+                  }`}
+                >
+                  {user?.tier ?? "free"}
+                </span>
+                <span className="text-sm font-bold text-zinc-100 whitespace-nowrap">
+                  {user?.profile?.firstName} {user?.profile?.lastName}
+                </span>
+              </div>
             </div>
 
             {/* Avatar Circle */}
@@ -173,8 +190,14 @@ export default function Header() {
         {/* Sidebar Header */}
         <div className="flex items-center justify-between px-5 h-20 border-b border-zinc-800 shrink-0">
           <div className="flex items-center gap-2">
-            <svg className="w-5 h-4 text-lime-400" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeLinecap="round">
-              <path d="M2 4 Q9 1 22 4"  strokeWidth={2.2} />
+            <svg
+              className="w-5 h-4 text-lime-400"
+              viewBox="0 0 24 18"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+            >
+              <path d="M2 4 Q9 1 22 4" strokeWidth={2.2} />
               <path d="M2 9 Q11 6 24 9" strokeWidth={2.2} />
               <path d="M2 14 Q8 11 18 14" strokeWidth={2.2} />
             </svg>
@@ -219,13 +242,24 @@ export default function Header() {
               </div>
             </div>
           </Link>
-          <div className="flex flex-col leading-none">
-            <span className="text-[10px] text-zinc-500 font-bold tracking-widest mb-1">
+          <div className="flex flex-col leading-none gap-1">
+            <span className="text-[10px] text-zinc-500 font-bold tracking-widest">
               Hi Athlete !
             </span>
-            <span className="text-sm font-bold text-zinc-100">
-              {user?.profile?.firstName} {user?.profile?.lastName}
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span
+                className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full border ${
+                  user?.tier === "pro"
+                    ? "text-amber-400 bg-amber-400/10 border-amber-400/30"
+                    : "text-zinc-600 bg-zinc-800/50 border-zinc-700"
+                }`}
+              >
+                {user?.tier ?? "free"}
+              </span>
+              <span className="text-sm font-bold text-zinc-100">
+                {user?.profile?.firstName} {user?.profile?.lastName}
+              </span>
+            </div>
           </div>
         </div>
 

@@ -1,6 +1,7 @@
 import z from "zod";
 
 const roleSchema = z.enum(["admin", "user"]);
+const tierSchema = z.enum(["free", "pro"]);
 
 const profileSchema = z.object({
   firstName: z.string(), // บังคับมีค่าเสมอ (register บังคับใส่)
@@ -18,6 +19,7 @@ export const userSchema = z.object({
   email: z.string(),
   status: z.boolean(),
   role: roleSchema,
+  tier: tierSchema,
   profile: profileSchema.nullable(),
 });
 

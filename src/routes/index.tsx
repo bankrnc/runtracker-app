@@ -14,7 +14,9 @@ import BlogDetailPage from "../features/blog/BlogDetailPage";
 import BlogEditorPage from "../features/blog/BlogEditorPage";
 import AboutUsPage from "../pages/AboutUsPage";
 import ProtectedRoute from "../layouts/ProtectedRoute";
+import AdminRoute from "../layouts/AdminRoute";
 import SharedLayout from "../layouts/SharedLayout";
+import AdminUsersPage from "../features/admin/AdminUsersPage";
 
 export const router = createBrowserRouter([
   {
@@ -50,6 +52,13 @@ export const router = createBrowserRouter([
           { path: "/dashboard", Component: DashboardPage },
           { path: "/blog/new", Component: BlogEditorPage },
           { path: "/blog/edit/:id", Component: BlogEditorPage },
+        ],
+      },
+      // --- 4. หน้าสำหรับ Admin เท่านั้น ---
+      {
+        Component: AdminRoute,
+        children: [
+          { path: "/admin/users", Component: AdminUsersPage },
         ],
       },
     ],
