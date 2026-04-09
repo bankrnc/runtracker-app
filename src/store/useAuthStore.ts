@@ -6,6 +6,7 @@ type AuthStore = {
   user: User | null;
   setAuth: (user: User) => void;
   clearAuth: () => void;
+  incrementGenerateCount: () => void;
 };
 
 //(set) => คือคำสั่ง update state
@@ -14,4 +15,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   setAuth: (user) => set({ isAuthenticated: true, user }),
   clearAuth: () => set({ isAuthenticated: false, user: null }),
+  incrementGenerateCount: () =>
+    set((state) =>
+      state.user
+        ? { user: { ...state.user, generateCount: state.user.generateCount + 1 } }
+        : {},
+    ),
 }));

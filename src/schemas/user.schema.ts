@@ -20,6 +20,8 @@ export const userSchema = z.object({
   status: z.boolean(),
   role: roleSchema,
   tier: tierSchema,
+  generateCount: z.number(),
+  generateResetAt: z.string(),
   profile: profileSchema.nullable(),
 });
 
