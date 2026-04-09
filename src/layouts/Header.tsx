@@ -116,25 +116,20 @@ export default function Header() {
 
           {/* 3. Right Section: User & Auth */}
           <div className="flex items-center gap-3 sm:gap-5 shrink-0">
-            {/* User Text - Hidden on mid-screens to prevent overlapping */}
-            <div className="hidden 2xl:flex flex-col items-end leading-none gap-1">
-              <span className="text-[10px] text-zinc-500 font-bold tracking-widest whitespace-nowrap">
-                Hi Athlete !
+            {/* User Text */}
+            <div className="hidden 2xl:flex items-center gap-2">
+              <span
+                className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-px rounded-full border ${
+                  user?.tier === "pro"
+                    ? "text-amber-400 bg-amber-400/10 border-amber-400/30"
+                    : "text-sky-400 bg-sky-400/10 border-sky-400/30"
+                }`}
+              >
+                {user?.tier === "pro" ? "✦ Pro" : "Free"}
               </span>
-              <div className="flex items-center gap-1.5">
-                <span
-                  className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${
-                    user?.tier === "pro"
-                      ? "text-amber-400 bg-amber-400/10 border-amber-400/30"
-                      : "text-zinc-600 bg-zinc-800/50 border-zinc-700"
-                  }`}
-                >
-                  {user?.tier ?? "free"}
-                </span>
-                <span className="text-sm font-bold text-zinc-100 whitespace-nowrap">
-                  {user?.profile?.firstName} {user?.profile?.lastName}
-                </span>
-              </div>
+              <span className="text-[15px] font-bold text-zinc-100 whitespace-nowrap leading-none">
+                {user?.profile?.firstName} {user?.profile?.lastName}
+              </span>
             </div>
 
             {/* Avatar Circle */}
@@ -226,39 +221,35 @@ export default function Header() {
           </button>
         </div>
 
-        {/* User Info */}
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-zinc-800/50">
-          <Link to="/profile" onClick={() => setSidebarOpen(false)}>
-            <div className="h-10 w-10 p-0.5 rounded-full bg-linear-to-tr from-lime-400 to-green-500 border-2 border-zinc-900 shrink-0">
-              <div className="w-full h-full bg-zinc-900 rounded-full overflow-hidden flex items-center justify-center">
-                {user?.profile?.imageUrl ? (
-                  <img
-                    src={user?.profile?.imageUrl}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-sm">👤</span>
-                )}
+        {/* User Info Card */}
+        <div className="px-3 py-3 border-b border-zinc-800/50">
+          <div className="flex items-center gap-3 bg-zinc-800/40 border border-zinc-700/40 rounded-xl px-3 py-2.5">
+            <Link to="/profile" onClick={() => setSidebarOpen(false)} className="shrink-0">
+              <div className="h-10 w-10 p-0.5 rounded-full bg-linear-to-tr from-lime-400 to-green-500">
+                <div className="w-full h-full bg-zinc-900 rounded-full overflow-hidden flex items-center justify-center">
+                  {user?.profile?.imageUrl ? (
+                    <img src={user?.profile?.imageUrl} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-sm">👤</span>
+                  )}
+                </div>
               </div>
-            </div>
-          </Link>
-          <div className="flex flex-col leading-none gap-1">
-            <span className="text-[10px] text-zinc-500 font-bold tracking-widest">
-              Hi Athlete !
-            </span>
-            <div className="flex items-center gap-1.5">
-              <span
-                className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full border ${
-                  user?.tier === "pro"
-                    ? "text-amber-400 bg-amber-400/10 border-amber-400/30"
-                    : "text-zinc-600 bg-zinc-800/50 border-zinc-700"
-                }`}
-              >
-                {user?.tier ?? "free"}
-              </span>
-              <span className="text-sm font-bold text-zinc-100">
-                {user?.profile?.firstName} {user?.profile?.lastName}
-              </span>
+            </Link>
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-sm font-bold text-zinc-100 leading-tight truncate">
+                  {user?.profile?.firstName} {user?.profile?.lastName}
+                </span>
+                <span
+                  className={`shrink-0 text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full border ${
+                    user?.tier === "pro"
+                      ? "text-amber-400 bg-amber-400/10 border-amber-400/30"
+                      : "text-sky-400 bg-sky-400/10 border-sky-400/30"
+                  }`}
+                >
+                  {user?.tier === "pro" ? "✦ Pro" : "Free"}
+                </span>
+              </div>
             </div>
           </div>
         </div>

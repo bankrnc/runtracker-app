@@ -4,6 +4,7 @@ import { programApi } from "../../api/programApi";
 import { useHealthMetrics } from "../../hooks/useHealthMetrics";
 import type { Program } from "../../schemas/program.schema";
 import { SESSION_TYPE_LABELS, SESSION_TYPE_BAR } from "../../schemas/program.schema";
+import { parseIntervalDistanceKm } from "../../lib/programUtils";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -11,6 +12,7 @@ function paceToSeconds(pace: string): number {
   const [m, s] = pace.split(":").map(Number);
   return (m || 0) * 60 + (s || 0);
 }
+
 
 function getSessionDate(startDate: string, weekNumber: number, dayNumber: number): Date {
   const [y, m, d] = startDate.split("T")[0].split("-").map(Number);
@@ -222,15 +224,27 @@ export default function DashboardPage() {
 
   // ─── summary stats ──────────────────────────────────────────────────────────
 
-  const allLogs = sessions.flatMap((s) => s.kmLogs);
-  const totalKm = allLogs.length;
+  // Each log gets its real km weight:
+  // - non-interval: 1 km per log
+  // - interval: parsed from description (e.g. 400m → 0.4 km), null if unrecognised → excluded
+  const enrichedLogs = sessions.flatMap((s) => {
+    const distPerLog: number | null = s.type === "interval"
+      ? parseIntervalDistanceKm(s.description)
+      : 1;
+    return s.kmLogs.map((log) => ({ log, distanceKm: distPerLog, sessionType: s.type }));
+  });
 
-  const logsWithPace = allLogs.filter((l) => l.actualPace);
-  const totalSec = logsWithPace.reduce((sum, l) => sum + paceToSeconds(l.actualPace!), 0);
+  const totalKm = Math.round(
+    enrichedLogs.reduce((sum, x) => x.distanceKm != null ? sum + x.distanceKm : sum, 0) * 10
+  ) / 10;
+
+  const totalSec = enrichedLogs
+    .filter((x) => x.log.actualPace && x.distanceKm != null)
+    .reduce((sum, x) => sum + paceToSeconds(x.log.actualPace!) * x.distanceKm!, 0);
   const totalHours = Math.floor(totalSec / 3600);
   const totalMins = Math.floor((totalSec % 3600) / 60);
   const avgMinPerSession =
-    sessions.length > 0 && logsWithPace.length > 0
+    sessions.length > 0 && totalSec > 0
       ? Math.round(totalSec / 60 / sessions.length)
       : 0;
 
@@ -243,13 +257,14 @@ export default function DashboardPage() {
   // ─── HR zones ──────────────────────────────────────────────────────────────
 
   const hrZoneStats = ZONE_META.map(({ zone }) => {
-    const logs = allLogs.filter(
-      (l) => l.actualHr && maxHR && getHrZone(l.actualHr, maxHR) === zone
+    const zLogs = enrichedLogs.filter(
+      (x) => x.log.actualHr && maxHR && getHrZone(x.log.actualHr, maxHR) === zone
     );
-    const sec = logs
-      .filter((l) => l.actualPace)
-      .reduce((sum, l) => sum + paceToSeconds(l.actualPace!), 0);
-    return { zone, km: logs.length, min: Math.round(sec / 60) };
+    const km = zLogs.reduce((sum, x) => x.distanceKm != null ? sum + x.distanceKm : sum, 0);
+    const sec = zLogs
+      .filter((x) => x.log.actualPace && x.distanceKm != null)
+      .reduce((sum, x) => sum + paceToSeconds(x.log.actualPace!) * x.distanceKm!, 0);
+    return { zone, km: Math.round(km * 10) / 10, min: Math.round(sec / 60) };
   });
 
   const totalHrKm = hrZoneStats.reduce((s, z) => s + z.km, 0);
@@ -275,12 +290,12 @@ export default function DashboardPage() {
   // ─── session type ──────────────────────────────────────────────────────────
 
   const typeStats = SESSION_TYPE_ORDER.reduce<Record<string, { km: number; min: number }>>((acc, type) => {
-    const typeSessions = sessions.filter((s) => s.type === type);
-    const logs = typeSessions.flatMap((s) => s.kmLogs);
-    const sec = logs
-      .filter((l) => l.actualPace)
-      .reduce((sum, l) => sum + paceToSeconds(l.actualPace!), 0);
-    acc[type] = { km: logs.length, min: Math.round(sec / 60) };
+    const tLogs = enrichedLogs.filter((x) => x.sessionType === type);
+    const km = tLogs.reduce((sum, x) => x.distanceKm != null ? sum + x.distanceKm : sum, 0);
+    const sec = tLogs
+      .filter((x) => x.log.actualPace && x.distanceKm != null)
+      .reduce((sum, x) => sum + paceToSeconds(x.log.actualPace!) * x.distanceKm!, 0);
+    acc[type] = { km: Math.round(km * 10) / 10, min: Math.round(sec / 60) };
     return acc;
   }, {});
 

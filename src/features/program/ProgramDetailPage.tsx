@@ -11,6 +11,7 @@ import {
   SESSION_TYPE_COLORS,
   SESSION_TYPE_BAR,
 } from "../../schemas/program.schema";
+import { parseIntervalDistanceKm } from "../../lib/programUtils";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -20,6 +21,7 @@ export default function ProgramDetailPage() {
   const [loading, setLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [activeWeek, setActiveWeek] = useState(0);
+  const [celebrationScore, setCelebrationScore] = useState<number | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -44,6 +46,7 @@ export default function ProgramDetailPage() {
       };
     });
     setSelectedSession(null);
+    setCelebrationScore(score);
   };
 
   if (loading)
@@ -160,8 +163,8 @@ export default function ProgramDetailPage() {
                 onClick={() => setActiveWeek(i)}
                 className={`shrink-0 px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest transition-all hover:cursor-pointer ${
                   activeWeek === i
-                    ? "bg-lime-400 text-black"
-                    : "bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-zinc-600"
+                    ? "bg-zinc-800 border border-violet-500/50 text-violet-300"
+                    : "bg-zinc-900 border border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300"
                 }`}
               >
                 Week {w.weekNumber}{allDone && " ✓"}
@@ -191,6 +194,10 @@ export default function ProgramDetailPage() {
           onLogged={handleLogged}
         />
       )}
+
+      {celebrationScore !== null && (
+        <ScoreModal score={celebrationScore} onClose={() => setCelebrationScore(null)} />
+      )}
     </div>
   );
 }
@@ -216,9 +223,30 @@ function SessionCard({ session, onLog }: { session: Session; onLog: () => void }
       ? Math.round(logsWithHr.reduce((sum, l) => sum + l.actualHr!, 0) / logsWithHr.length)
       : null;
 
+  if (isRest) {
+    return (
+      <div className="bg-zinc-900/40 border border-zinc-800/60 rounded-3xl p-5 flex flex-col gap-3">
+        <span className="text-[10px] font-bold text-zinc-700 uppercase">
+          Day {session.dayNumber} · {DAY_LABELS[session.dayNumber - 1]}
+        </span>
+        <div className="flex flex-col items-center justify-center py-4 gap-3">
+          <div className="w-10 h-10 rounded-full bg-zinc-800/60 border border-zinc-700/50 flex items-center justify-center">
+            <svg className="w-5 h-5 text-zinc-600" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+            </svg>
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-black text-zinc-500 uppercase tracking-widest">Rest Day</p>
+            <p className="text-[10px] text-zinc-700 mt-1">Recovery is training too</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`bg-zinc-900 border rounded-3xl p-5 flex flex-col gap-3 transition-colors ${
-      isDone ? "border-lime-400/30" : "border-zinc-800 hover:border-zinc-700"
+    <div className={`bg-zinc-900/80 border rounded-3xl p-5 flex flex-col gap-3 transition-colors ${
+      isDone ? "border-violet-500/30 bg-violet-500/5" : "border-zinc-800 hover:border-zinc-700"
     }`}>
       <div className="flex items-center justify-between">
         <span className="text-[10px] font-bold text-zinc-600 uppercase">
@@ -255,27 +283,33 @@ function SessionCard({ session, onLog }: { session: Session; onLog: () => void }
         </div>
       )}
 
-      {/* Interval: show set count + pace target */}
+      {/* Interval: show set count + distance per set + pace target */}
       {!isRest && session.type === "interval" && (
         <div className="space-y-1.5">
-          {session.plannedDistance && (
-            <div className="flex items-center gap-2">
-              <div className={`w-0.5 h-4 rounded-full shrink-0 ${SESSION_TYPE_BAR[session.type]}`} />
-              <div className="flex flex-col">
-                <span className="text-[10px] text-zinc-500">{session.plannedDistance} sets</span>
-                {session.segments[0] && (
-                  <span className="text-xs font-bold text-zinc-300">
-                    {session.segments[0].paceMin && session.segments[0].paceMax
-                      ? `${session.segments[0].paceMin}–${session.segments[0].paceMax}/km`
-                      : session.segments[0].paceMax
-                        ? `≤${session.segments[0].paceMax}/km`
-                        : ""}
-                    {session.segments[0].hrMax ? ` · <${session.segments[0].hrMax}bpm` : ""}
+          {session.plannedDistance && (() => {
+            const distMatch = session.description?.match(/\d+[×x](\d+(?:\.\d+)?(?:m|km))/i);
+            const distPerSet = distMatch ? distMatch[1] : null;
+            return (
+              <div className="flex items-center gap-2">
+                <div className={`w-0.5 h-4 rounded-full shrink-0 ${SESSION_TYPE_BAR[session.type]}`} />
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-zinc-500">
+                    {session.plannedDistance} sets{distPerSet ? ` × ${distPerSet}` : ""}
                   </span>
-                )}
+                  {session.segments[0] && (
+                    <span className="text-xs font-bold text-zinc-300">
+                      {session.segments[0].paceMin && session.segments[0].paceMax
+                        ? `${session.segments[0].paceMin}–${session.segments[0].paceMax}/km`
+                        : session.segments[0].paceMax
+                          ? `≤${session.segments[0].paceMax}/km`
+                          : ""}
+                      {session.segments[0].hrMax ? ` · <${session.segments[0].hrMax}bpm` : ""}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       )}
 
@@ -300,15 +334,24 @@ function SessionCard({ session, onLog }: { session: Session; onLog: () => void }
 
       {/* Log summary */}
       {isDone && (
-        <div className="bg-lime-400/5 border border-lime-400/20 rounded-xl p-3">
+        <div className="bg-violet-500/8 border border-violet-500/20 rounded-xl p-3">
           <div className="flex items-baseline gap-1 mb-3">
-            <span className="text-3xl font-black text-lime-400">{session.score ?? "—"}</span>
-            <span className="text-sm font-bold text-lime-400/60">/10</span>
+            <span className="text-3xl font-black text-violet-300">{session.score ?? "—"}</span>
+            <span className="text-sm font-bold text-violet-400/60">/10</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             <div>
               <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-0.5">Dist</p>
-              <p className="text-xs font-black text-zinc-300">{session.kmLogs.length} km</p>
+              <p className="text-xs font-black text-zinc-300">
+                {session.type === "interval"
+                  ? (() => {
+                      const distPerSet = parseIntervalDistanceKm(session.description);
+                      if (distPerSet == null) return `${session.kmLogs.length} sets`;
+                      const total = Math.round(distPerSet * session.kmLogs.length * 10) / 10;
+                      return `${total} km`;
+                    })()
+                  : `${session.kmLogs.length} km`}
+              </p>
             </div>
             <div>
               <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-0.5">Avg Pace</p>
@@ -327,8 +370,8 @@ function SessionCard({ session, onLog }: { session: Session; onLog: () => void }
           onClick={onLog}
           className={`mt-auto w-full py-2 rounded-xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 hover:cursor-pointer ${
             isDone
-              ? "bg-zinc-800 border border-zinc-700 text-zinc-400 hover:border-zinc-600"
-              : "bg-lime-400 text-black hover:bg-white"
+              ? "bg-zinc-800/60 border border-zinc-700 text-zinc-500 hover:border-violet-500/30 hover:text-violet-400"
+              : "bg-zinc-800 border border-violet-500/40 text-violet-300 hover:bg-violet-900/40 hover:border-violet-400/60"
           }`}
         >
           {isDone ? "Edit Log" : "Log Run"}
@@ -411,92 +454,227 @@ function LogModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
-      style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
+      style={{ backgroundColor: "rgba(0,0,0,0.85)" }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-zinc-900 border border-zinc-800 rounded-4xl w-full max-w-lg max-h-[90vh] flex flex-col">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-zinc-800/80 shrink-0">
           <div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-0.5">
-              Day {session.dayNumber} · {SESSION_TYPE_LABELS[session.type]}
-            </p>
-            <h3 className="font-black text-lg">
-              {isInterval ? `Log Intervals · ${totalRows} sets` : `Log Run · ${totalRows} km`}
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${SESSION_TYPE_COLORS[session.type]}`}>
+                {SESSION_TYPE_LABELS[session.type]}
+              </span>
+              <span className="text-[9px] text-zinc-600 uppercase tracking-widest font-bold">Day {session.dayNumber}</span>
+            </div>
+            <h3 className="font-black text-lg text-white tracking-tight">
+              {isInterval ? `${totalRows} Intervals` : `${totalRows} km Run`}
             </h3>
           </div>
-          <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors hover:cursor-pointer">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white transition-all hover:cursor-pointer"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Column headers */}
-        <div className="grid grid-cols-[40px_1fr_100px_90px] gap-2 px-6 py-2 shrink-0">
-          <span className="text-[10px] font-bold text-zinc-600 uppercase">{isInterval ? "Set" : "Km"}</span>
-          <span className="text-[10px] font-bold text-zinc-600 uppercase">Target</span>
-          <span className="text-[10px] font-bold text-zinc-600 uppercase">Pace /km</span>
-          <span className="text-[10px] font-bold text-zinc-600 uppercase">HR bpm</span>
+        <div className="grid grid-cols-[40px_1fr_1fr] gap-3 px-5 py-2.5 shrink-0">
+          <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">
+            {isInterval ? "Set" : "Km"}
+          </span>
+          <div className="flex items-center gap-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-lime-400 shrink-0" />
+            <span className="text-[9px] font-bold text-lime-500 uppercase tracking-widest">Pace /km</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
+            <span className="text-[9px] font-bold text-violet-400 uppercase tracking-widest">Heart Rate</span>
+          </div>
         </div>
 
-        {/* Km rows */}
-        <div className="overflow-y-auto px-6 pb-4 flex flex-col gap-2 flex-1">
+        {/* Rows */}
+        <div className="overflow-y-auto px-5 pb-4 flex flex-col gap-1.5 flex-1">
           {rows.map((row, i) => {
             const seg = getSegment(row.kmNumber);
+            const isFilled = !!(row.actualPace || row.actualHr);
             return (
-              <div key={row.kmNumber} className="grid grid-cols-[40px_1fr_100px_90px] gap-2 items-center">
-                {/* Km / Set number */}
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black ${
-                  row.actualPace || row.actualHr ? "bg-lime-400 text-black" : "bg-zinc-800 text-zinc-500"
-                }`} title={isInterval ? `Set ${row.kmNumber}` : `km ${row.kmNumber}`}>
+              <div
+                key={row.kmNumber}
+                className={`grid grid-cols-[40px_1fr_1fr] gap-3 items-center px-3 py-2.5 rounded-xl border transition-colors ${
+                  isFilled
+                    ? "bg-zinc-800/50 border-zinc-700/60"
+                    : "bg-zinc-900/40 border-zinc-800/40"
+                }`}
+              >
+                {/* Set / Km badge */}
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black transition-colors ${
+                  isFilled ? "bg-lime-400 text-black" : "bg-zinc-800 text-zinc-500"
+                }`}>
                   {row.kmNumber}
                 </div>
 
-                {/* Target */}
-                <div className="text-[10px] text-zinc-500 leading-tight">
-                  {seg ? (
-                    <>
-                      {seg.paceMax && <span>{seg.paceMin ?? "—"}–{seg.paceMax}/km</span>}
-                      {seg.hrMax && <span className="block">&lt;{seg.hrMax}bpm</span>}
-                    </>
-                  ) : (
-                    <span className="text-zinc-700">—</span>
-                  )}
+                {/* Pace column */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-bold text-zinc-400 leading-none">
+                    {seg?.paceMin && seg?.paceMax
+                      ? `${seg.paceMin}–${seg.paceMax}/km`
+                      : seg?.paceMax
+                        ? `≤${seg.paceMax}/km`
+                        : <span className="text-zinc-700">—</span>}
+                  </span>
+                  <input
+                    value={row.actualPace}
+                    onChange={(e) => updateRow(i, "actualPace", e.target.value)}
+                    placeholder="5:30"
+                    className="bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder:text-zinc-600 focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400/20 transition-all text-center"
+                  />
                 </div>
 
-                {/* Pace input */}
-                <input
-                  value={row.actualPace}
-                  onChange={(e) => updateRow(i, "actualPace", e.target.value)}
-                  placeholder="5:30"
-                  className="bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-lime-400 transition-colors text-center"
-                />
-
-                {/* HR input */}
-                <input
-                  type="number"
-                  value={row.actualHr}
-                  onChange={(e) => updateRow(i, "actualHr", e.target.value)}
-                  placeholder="145"
-                  className="bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-lime-400 transition-colors text-center"
-                />
+                {/* HR column */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-bold text-zinc-400 leading-none">
+                    {seg?.hrMax ? `< ${seg.hrMax} bpm` : <span className="text-zinc-700">—</span>}
+                  </span>
+                  <input
+                    type="number"
+                    value={row.actualHr}
+                    onChange={(e) => updateRow(i, "actualHr", e.target.value)}
+                    placeholder="145"
+                    className="bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs font-bold text-white placeholder:text-zinc-600 focus:outline-none focus:border-violet-400 focus:ring-1 focus:ring-violet-400/20 transition-all text-center"
+                  />
+                </div>
               </div>
             );
           })}
         </div>
 
         {/* Save button */}
-        <div className="px-6 pb-6 pt-4 border-t border-zinc-800 shrink-0">
+        <div className="px-5 pb-5 pt-3 border-t border-zinc-800/80 shrink-0">
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="w-full bg-lime-400 text-black py-3 rounded-xl font-black text-sm hover:bg-white transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer"
+            className="w-full bg-lime-400 text-black py-3 rounded-xl font-black text-xs hover:bg-white transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer uppercase tracking-widest"
           >
             {submitting ? "Saving..." : "Save & Calculate Score"}
           </button>
         </div>
       </div>
     </div>
+  );
+}
+
+function ScoreModal({ score, onClose }: { score: number; onClose: () => void }) {
+  const meta =
+    score >= 8 ? { label: "Excellent!", msg: "Outstanding performance", color: "#a3e635", text: "text-lime-400" } :
+    score >= 6 ? { label: "Good Run!",  msg: "Solid effort today",      color: "#a78bfa", text: "text-violet-300" } :
+    score >= 4 ? { label: "Keep Going", msg: "Room to push harder",     color: "#fb923c", text: "text-orange-400" } :
+                 { label: "You'll Get There", msg: "Every run counts",  color: "#f87171", text: "text-red-400"    };
+
+  // 30 particles in 2 rings
+  const particles = Array.from({ length: 30 }, (_, i) => {
+    const ring = i < 18 ? 0 : 1;
+    const count = ring === 0 ? 18 : 12;
+    const idx = ring === 0 ? i : i - 18;
+    const angle = (idx / count) * 360 + (ring * 15);
+    const dist = ring === 0 ? 110 : 170;
+    const rad = (angle * Math.PI) / 180;
+    const palette = ["#a3e635", "#a78bfa", "#fb923c", "#f472b6", "#60a5fa", "#facc15", "#34d399"];
+    return {
+      id: i,
+      x: Math.cos(rad) * dist,
+      y: Math.sin(rad) * dist,
+      size: 4 + (i % 4),
+      color: palette[i % palette.length],
+      delay: i * 35,
+      dur: 900 + (i % 5) * 120,
+    };
+  });
+
+  return (
+    <>
+      <style>{`
+        @keyframes sp-burst {
+          0%   { transform: translate(0,0) scale(0); opacity: 1; }
+          65%  { opacity: 0.9; }
+          100% { transform: translate(var(--sp-x), var(--sp-y)) scale(1); opacity: 0; }
+        }
+        @keyframes sp-in {
+          0%   { transform: scale(0.3) translateY(20px); opacity: 0; }
+          65%  { transform: scale(1.08) translateY(-4px); opacity: 1; }
+          100% { transform: scale(1) translateY(0);       opacity: 1; }
+        }
+        @keyframes sp-shine {
+          0%, 100% { opacity: 0.15; transform: scale(1);    }
+          50%       { opacity: 0.35; transform: scale(1.08); }
+        }
+        .sp-particle { animation: sp-burst var(--sp-dur) ease-out forwards; }
+        .sp-score    { animation: sp-in 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+        .sp-shine    { animation: sp-shine 2.4s ease-in-out infinite; }
+      `}</style>
+
+      <div
+        className="fixed inset-0 z-60 flex items-center justify-center p-4"
+        style={{ backgroundColor: "rgba(0,0,0,0.92)" }}
+      >
+        <div className="relative flex flex-col items-center gap-5 text-center select-none">
+
+          {/* Burst particles */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            {particles.map((p) => (
+              <div
+                key={p.id}
+                className="sp-particle absolute rounded-full"
+                style={{
+                  width: p.size,
+                  height: p.size,
+                  backgroundColor: p.color,
+                  "--sp-x": `${p.x}px`,
+                  "--sp-y": `${p.y}px`,
+                  "--sp-dur": `${p.dur}ms`,
+                  animationDelay: `${p.delay}ms`,
+                } as React.CSSProperties}
+              />
+            ))}
+          </div>
+
+          {/* Glow ring */}
+          <div
+            className="sp-shine absolute w-48 h-48 rounded-full"
+            style={{ background: `radial-gradient(circle, ${meta.color}30 0%, transparent 70%)` }}
+          />
+
+          {/* Score number */}
+          <div className="sp-score flex flex-col items-center z-10">
+            <span
+              className={`text-[100px] leading-none font-black ${meta.text}`}
+              style={{ textShadow: `0 0 60px ${meta.color}99, 0 0 120px ${meta.color}44` }}
+            >
+              {score}
+            </span>
+            <span className="text-lg text-zinc-600 font-bold -mt-2">/10</span>
+          </div>
+
+          {/* Label */}
+          <div className="z-10 flex flex-col items-center gap-1">
+            <p className={`text-2xl font-black uppercase tracking-tight ${meta.text}`}>
+              {meta.label}
+            </p>
+            <p className="text-sm text-zinc-500">{meta.msg}</p>
+          </div>
+
+          {/* Close */}
+          <button
+            onClick={onClose}
+            className="z-10 mt-2 px-10 py-3 rounded-2xl bg-zinc-900 border border-zinc-700 text-zinc-300 font-black text-sm uppercase tracking-widest hover:bg-zinc-800 hover:text-white transition-all active:scale-95 hover:cursor-pointer"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </>
   );
 }

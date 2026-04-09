@@ -12,33 +12,51 @@ function formatDate(iso: string) {
   });
 }
 
-// Render content: lines starting with **text** = bold heading, otherwise paragraph
+// Parse inline formatting tokens within a line
+function parseInline(text: string, lineKey: number): React.ReactNode[] {
+  // Order matters: ** before * to avoid conflict
+  const regex = /(\*\*[^*]+\*\*|\*[^*]+\*|__[^_]+__|\[(?:sm|lg|xl|green|white)\][^[]+\[\/(?:sm|lg|xl|green|white)\])/g;
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  let match: RegExpExecArray | null;
+  let idx = 0;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > last) parts.push(text.slice(last, match.index));
+    const t = match[0];
+    const k = `${lineKey}-${idx++}`;
+    if (t.startsWith("**"))      parts.push(<strong key={k} className="text-zinc-200 font-bold">{t.slice(2, -2)}</strong>);
+    else if (t.startsWith("*"))  parts.push(<em key={k} className="italic text-zinc-300">{t.slice(1, -1)}</em>);
+    else if (t.startsWith("__")) parts.push(<span key={k} className="underline">{t.slice(2, -2)}</span>);
+    else if (t.startsWith("[sm]"))    parts.push(<span key={k} className="text-xs">{t.slice(4, -5)}</span>);
+    else if (t.startsWith("[lg]"))    parts.push(<span key={k} className="text-base text-zinc-300">{t.slice(4, -5)}</span>);
+    else if (t.startsWith("[xl]"))    parts.push(<span key={k} className="text-xl font-bold text-zinc-200">{t.slice(4, -5)}</span>);
+    else if (t.startsWith("[green]")) parts.push(<span key={k} className="text-lime-400">{t.slice(7, -8)}</span>);
+    else if (t.startsWith("[white]")) parts.push(<span key={k} className="text-white font-medium">{t.slice(7, -8)}</span>);
+    last = regex.lastIndex;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts.length ? parts : [text];
+}
+
+// Render content: whole-line **text** = heading, otherwise paragraph with inline parsing
 function renderContent(content: string) {
-  return content.split("\n").filter((l) => l.trim() !== "").map((line, i) => {
-    // Bold heading: **Some text**
-    if (/^\*\*(.+)\*\*$/.test(line.trim())) {
+  return content
+    .split("\n")
+    .filter((l) => l.trim() !== "")
+    .map((line, i) => {
+      if (/^\*\*(.+)\*\*$/.test(line.trim())) {
+        return (
+          <h3 key={i} className="text-lg font-black text-white mt-6 mb-2">
+            {line.trim().replace(/^\*\*|\*\*$/g, "")}
+          </h3>
+        );
+      }
       return (
-        <h3 key={i} className="text-lg font-black text-white mt-6 mb-2">
-          {line.trim().replace(/^\*\*|\*\*$/g, "")}
-        </h3>
+        <p key={i} className="text-zinc-400 leading-relaxed text-sm">
+          {parseInline(line, i)}
+        </p>
       );
-    }
-    // Inline bold: mix of **bold** and normal text
-    const parts = line.split(/(\*\*[^*]+\*\*)/g);
-    return (
-      <p key={i} className="text-zinc-400 leading-relaxed text-sm">
-        {parts.map((part, j) =>
-          /^\*\*[^*]+\*\*$/.test(part) ? (
-            <strong key={j} className="text-zinc-200 font-bold">
-              {part.replace(/^\*\*|\*\*$/g, "")}
-            </strong>
-          ) : (
-            part
-          )
-        )}
-      </p>
-    );
-  });
+    });
 }
 
 export default function BlogDetailPage() {
@@ -67,29 +85,36 @@ export default function BlogDetailPage() {
     return (
       <div className="min-h-[calc(100vh-80px)] bg-black text-white flex flex-col items-center justify-center gap-4">
         <p className="text-zinc-500">Post not found.</p>
-        <Link to="/blog" className="text-lime-400 text-sm font-bold hover:underline">← Back to Blog</Link>
+        <Link
+          to="/blog"
+          className="text-lime-400 text-sm font-bold hover:underline"
+        >
+          ← Back to Blog
+        </Link>
       </div>
     );
   }
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-black text-white font-sans pb-20">
-      {/* Cover */}
-      {post.coverUrl && (
-        <div className="w-full max-h-80 overflow-hidden">
-          <img src={post.coverUrl} alt={post.title} className="w-full h-80 object-cover" />
-          <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/60 pointer-events-none" />
-        </div>
-      )}
-
-      <main className="max-w-3xl mx-auto px-6 pt-10">
+      <main className="max-w-6xl mx-auto px-6 pt-10">
         {/* Back */}
         <Link
           to="/blog"
           className="inline-flex items-center gap-2 mb-6 px-5 py-2.5 bg-zinc-900 border border-zinc-800 rounded-full text-sm font-black uppercase tracking-widest text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all active:scale-95"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2.5}
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
           Blog
         </Link>
@@ -98,7 +123,10 @@ export default function BlogDetailPage() {
         {post.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             {post.tags.map((tag) => (
-              <span key={tag} className="text-[10px] font-black uppercase tracking-widest text-violet-400 bg-violet-400/10 border border-violet-400/20 px-2.5 py-1 rounded-full">
+              <span
+                key={tag}
+                className="text-[10px] font-black uppercase tracking-widest text-violet-400 bg-violet-400/10 border border-violet-400/20 px-2.5 py-1 rounded-full"
+              >
                 {tag}
               </span>
             ))}
@@ -113,9 +141,14 @@ export default function BlogDetailPage() {
         {/* Author + date */}
         <div className="flex items-center gap-3 mb-8 pb-6 border-b border-zinc-800">
           {post.author?.profile?.imageUrl ? (
-            <img src={post.author.profile.imageUrl} className="w-9 h-9 rounded-full object-cover" />
+            <img
+              src={post.author.profile.imageUrl}
+              className="w-9 h-9 rounded-full object-cover"
+            />
           ) : (
-            <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center text-sm">👤</div>
+            <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center text-sm">
+              👤
+            </div>
           )}
           <div>
             <p className="text-sm font-bold text-zinc-200">
@@ -123,7 +156,9 @@ export default function BlogDetailPage() {
                 ? `${post.author.profile.firstName} ${post.author.profile.lastName}`
                 : "StridePilot Team"}
             </p>
-            <p className="text-[10px] text-zinc-600">{formatDate(post.createdAt)}</p>
+            <p className="text-[10px] text-zinc-600">
+              {formatDate(post.createdAt)}
+            </p>
           </div>
         </div>
 
@@ -135,9 +170,7 @@ export default function BlogDetailPage() {
         )}
 
         {/* Content */}
-        <div className="space-y-4">
-          {renderContent(post.content)}
-        </div>
+        <div className="space-y-4">{renderContent(post.content)}</div>
       </main>
     </div>
   );

@@ -257,7 +257,7 @@ export default function ProgramPage() {
                     </p>
                   )}
                   {!isPro && (
-                    <p className="text-[11px] text-zinc-500 leading-relaxed max-w-[180px] text-right">
+                    <p className="text-[11px] text-zinc-500 leading-relaxed max-w-45 text-right">
                       Upgrade to Pro to generate running programs by AI Coach
                     </p>
                   )}

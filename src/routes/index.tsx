@@ -50,8 +50,6 @@ export const router = createBrowserRouter([
           { path: "/program/:id", Component: ProgramDetailPage },
           { path: "/health", Component: HealthPage },
           { path: "/dashboard", Component: DashboardPage },
-          { path: "/blog/new", Component: BlogEditorPage },
-          { path: "/blog/edit/:id", Component: BlogEditorPage },
         ],
       },
       // --- 4. หน้าสำหรับ Admin เท่านั้น ---
@@ -59,6 +57,8 @@ export const router = createBrowserRouter([
         Component: AdminRoute,
         children: [
           { path: "/admin/users", Component: AdminUsersPage },
+          { path: "/blog/new", Component: BlogEditorPage },
+          { path: "/blog/edit/:id", Component: BlogEditorPage },
         ],
       },
     ],

@@ -26,8 +26,14 @@ export default function BlogEditorPage() {
     if (!isEdit) return;
     // find by id — fetch all admin posts then pick by id
     blogApi.getAllAdmin().then((posts) => {
-      const found = posts.find((p) => p.id === Number(id)) as PostDetail | undefined;
-      if (!found) { toast.error("Post not found"); navigate("/blog"); return; }
+      const found = posts.find((p) => p.id === Number(id)) as
+        | PostDetail
+        | undefined;
+      if (!found) {
+        toast.error("Post not found");
+        navigate("/blog");
+        return;
+      }
       blogApi.getBySlug(found.slug).then((post) => {
         setTitle(post.title);
         setExcerpt(post.excerpt ?? "");
@@ -46,25 +52,39 @@ export default function BlogEditorPage() {
     setCoverPreview(URL.createObjectURL(file));
   };
 
-  // Bold: wrap selection in **...**
-  const handleBold = () => {
+  // Wrap selected text (or placeholder) with before/after markers
+  const wrapSelection = (
+    before: string,
+    after: string,
+    placeholder: string,
+  ) => {
     const ta = contentRef.current;
     if (!ta) return;
     const start = ta.selectionStart;
     const end = ta.selectionEnd;
     const selected = content.slice(start, end);
-    const newContent =
-      content.slice(0, start) + `**${selected || "bold text"}**` + content.slice(end);
-    setContent(newContent);
+    const inner = selected || placeholder;
+    setContent(
+      content.slice(0, start) + before + inner + after + content.slice(end),
+    );
     setTimeout(() => {
       ta.focus();
-      ta.setSelectionRange(start + 2, start + 2 + (selected || "bold text").length);
+      ta.setSelectionRange(
+        start + before.length,
+        start + before.length + inner.length,
+      );
     }, 0);
   };
 
   const handleSubmit = async () => {
-    if (!title.trim()) { toast.error("Title is required"); return; }
-    if (!content.trim()) { toast.error("Content is required"); return; }
+    if (!title.trim()) {
+      toast.error("Title is required");
+      return;
+    }
+    if (!content.trim()) {
+      toast.error("Content is required");
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -94,7 +114,6 @@ export default function BlogEditorPage() {
   return (
     <div className="min-h-[calc(100vh-80px)] bg-black text-white font-sans pb-20">
       <main className="max-w-3xl mx-auto px-6 pt-10">
-
         {/* Header */}
         <section className="mb-8">
           <p className="text-[10px] font-bold tracking-widest uppercase text-violet-400 mb-2">
@@ -107,7 +126,6 @@ export default function BlogEditorPage() {
         </section>
 
         <div className="space-y-5">
-
           {/* Cover image */}
           <div>
             <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2 block">
@@ -115,25 +133,48 @@ export default function BlogEditorPage() {
             </label>
             <div
               onClick={() => fileRef.current?.click()}
-              className="relative w-full aspect-[16/7] bg-zinc-900 border-2 border-dashed border-zinc-700 rounded-2xl overflow-hidden flex items-center justify-center hover:border-zinc-500 transition-colors hover:cursor-pointer group"
+              className="relative w-full aspect-16/7 bg-zinc-900 border-2 border-dashed border-zinc-700 rounded-2xl overflow-hidden flex items-center justify-center hover:border-zinc-500 transition-colors hover:cursor-pointer group"
             >
               {coverPreview ? (
                 <>
-                  <img src={coverPreview} className="w-full h-full object-cover" />
+                  <img
+                    src={coverPreview}
+                    className="w-full h-full object-cover"
+                  />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="text-xs font-black uppercase tracking-widest text-white">Change Cover</span>
+                    <span className="text-xs font-black uppercase tracking-widest text-white">
+                      Change Cover
+                    </span>
                   </div>
                 </>
               ) : (
                 <div className="flex flex-col items-center gap-2 text-zinc-600 group-hover:text-zinc-400 transition-colors pointer-events-none">
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 9.75h18M3 6h18" />
+                  <svg
+                    className="w-10 h-10"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 9.75h18M3 6h18"
+                    />
                   </svg>
-                  <span className="text-xs font-bold">Click to upload cover image</span>
+                  <span className="text-xs font-bold">
+                    Click to upload cover image
+                  </span>
                 </div>
               )}
             </div>
-            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleCoverChange} />
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleCoverChange}
+            />
           </div>
 
           {/* Title */}
@@ -152,7 +193,10 @@ export default function BlogEditorPage() {
           {/* Excerpt */}
           <div>
             <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1.5 block">
-              Excerpt <span className="text-zinc-700 normal-case font-normal">(short description, shown on card)</span>
+              Excerpt{" "}
+              <span className="text-zinc-700 normal-case font-normal">
+                (short description, shown on card)
+              </span>
             </label>
             <textarea
               value={excerpt}
@@ -165,22 +209,118 @@ export default function BlogEditorPage() {
 
           {/* Content */}
           <div>
-            <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center justify-between mb-1.5 flex-wrap gap-2">
               <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
                 Content
               </label>
               {/* Toolbar */}
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={handleBold}
-                  className="px-2.5 py-1 bg-zinc-800 border border-zinc-700 rounded-lg text-xs font-black text-zinc-300 hover:text-white hover:border-zinc-600 transition-all hover:cursor-pointer"
-                >
-                  <strong>B</strong>
-                </button>
-                <span className="text-[10px] text-zinc-700 ml-1">
-                  Use **text** for bold
-                </span>
+              <div className="flex items-center gap-1.5">
+                {/* Format: B I U */}
+                <div className="flex items-center gap-0.5 bg-zinc-800/50 border border-zinc-700/50 rounded-lg p-0.5">
+                  {[
+                    {
+                      label: <strong>B</strong>,
+                      before: "**",
+                      after: "**",
+                      ph: "bold text",
+                      title: "Bold",
+                    },
+                    {
+                      label: <em>I</em>,
+                      before: "*",
+                      after: "*",
+                      ph: "italic text",
+                      title: "Italic",
+                    },
+                    {
+                      label: <span className="underline">U</span>,
+                      before: "__",
+                      after: "__",
+                      ph: "underlined",
+                      title: "Underline",
+                    },
+                  ].map(({ label, before, after, ph, title }) => (
+                    <button
+                      key={title}
+                      type="button"
+                      title={title}
+                      onClick={() => wrapSelection(before, after, ph)}
+                      className="px-2 py-1 rounded text-xs font-black text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all hover:cursor-pointer"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Size: S M L */}
+                <div className="flex items-center gap-0.5 bg-zinc-800/50 border border-zinc-700/50 rounded-lg p-0.5">
+                  {[
+                    {
+                      label: "S",
+                      before: "[sm]",
+                      after: "[/sm]",
+                      ph: "small text",
+                      title: "Small",
+                      cls: "text-[9px]",
+                    },
+                    {
+                      label: "M",
+                      before: "[lg]",
+                      after: "[/lg]",
+                      ph: "medium text",
+                      title: "Medium",
+                      cls: "text-xs",
+                    },
+                    {
+                      label: "L",
+                      before: "[xl]",
+                      after: "[/xl]",
+                      ph: "large text",
+                      title: "Large",
+                      cls: "text-sm",
+                    },
+                  ].map(({ label, before, after, ph, title, cls }) => (
+                    <button
+                      key={title}
+                      type="button"
+                      title={title}
+                      onClick={() => wrapSelection(before, after, ph)}
+                      className={`px-2 py-1 rounded font-black text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all hover:cursor-pointer ${cls}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Color: green, white */}
+                <div className="flex items-center gap-0.5 bg-zinc-800/50 border border-zinc-700/50 rounded-lg p-0.5">
+                  {[
+                    {
+                      color: "bg-lime-400",
+                      before: "[green]",
+                      after: "[/green]",
+                      ph: "green text",
+                      title: "Green",
+                    },
+                    {
+                      color: "bg-white",
+                      before: "[white]",
+                      after: "[/white]",
+                      ph: "white text",
+                      title: "White",
+                    },
+                  ].map(({ color, before, after, ph, title }) => (
+                    <button
+                      key={title}
+                      type="button"
+                      title={title}
+                      onClick={() => wrapSelection(before, after, ph)}
+                      className="px-2 py-1.5 rounded hover:bg-zinc-700 transition-all hover:cursor-pointer flex items-center justify-center"
+                    >
+                      <span className={`w-3 h-3 rounded-full ${color} block`} />
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
             <textarea
@@ -197,7 +337,10 @@ export default function BlogEditorPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1.5 block">
-                Tags <span className="text-zinc-700 normal-case font-normal">(comma separated)</span>
+                Tags{" "}
+                <span className="text-zinc-700 normal-case font-normal">
+                  (comma separated)
+                </span>
               </label>
               <input
                 value={tags}
@@ -217,9 +360,13 @@ export default function BlogEditorPage() {
                   onClick={() => setPublished(!published)}
                   className={`relative w-11 h-6 rounded-full transition-colors hover:cursor-pointer ${published ? "bg-lime-400" : "bg-zinc-700"}`}
                 >
-                  <span className={`absolute top-1 w-4 h-4 rounded-full bg-black transition-all ${published ? "left-6" : "left-1"}`} />
+                  <span
+                    className={`absolute top-1 w-4 h-4 rounded-full bg-black transition-all ${published ? "left-6" : "left-1"}`}
+                  />
                 </button>
-                <span className={`text-sm font-bold ${published ? "text-lime-400" : "text-zinc-500"}`}>
+                <span
+                  className={`text-sm font-bold ${published ? "text-lime-400" : "text-zinc-500"}`}
+                >
                   {published ? "Published" : "Draft"}
                 </span>
               </div>
@@ -239,10 +386,13 @@ export default function BlogEditorPage() {
               disabled={submitting}
               className="flex-1 py-3 rounded-xl font-black text-sm uppercase tracking-widest bg-lime-400 text-black hover:bg-white transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer shadow-[0_0_20px_rgba(163,230,53,0.15)]"
             >
-              {submitting ? "Saving..." : isEdit ? "Save Changes" : "Publish Post"}
+              {submitting
+                ? "Saving..."
+                : isEdit
+                  ? "Save Changes"
+                  : "Publish Post"}
             </button>
           </div>
-
         </div>
       </main>
     </div>
