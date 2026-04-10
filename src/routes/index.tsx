@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import RegisterPage from "../features/auth/RegisterPage";
 import LoginPage from "../features/auth/LoginPage";
 import ProfilePage from "../features/profile/ProfilePage";
@@ -23,6 +23,7 @@ export const router = createBrowserRouter([
     path: "/",
     Component: MainLayout,
     children: [
+      { index: true, Component: () => <Navigate to="/feature" replace /> },
       // --- 1. หน้าที่เข้าได้ทุกคน (Shared Routes) ---
       {
         Component: SharedLayout,
