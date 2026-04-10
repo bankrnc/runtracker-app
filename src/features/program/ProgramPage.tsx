@@ -99,7 +99,7 @@ export default function ProgramPage() {
     programApi
       .getAll()
       .then(setPrograms)
-      .catch(() => toast.error("Failed to load programs"))
+      .catch((err) => { if (err?.response?.status !== 401) toast.error("Failed to load programs"); })
       .finally(() => setLoading(false));
   }, []);
 

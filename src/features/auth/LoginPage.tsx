@@ -43,7 +43,7 @@ export default function LoginPage() {
       const user = userSchema.parse(res.data.user);
       setAuth(user);
       toast.success("login successfully");
-      navigate(user.role === "admin" ? "/admin/users" : "/dashboard");
+      navigate(user.role === "admin" ? "/admin/users" : "/program");
     } catch (err) {
       console.error(err); // เพิ่มแค่บรรทัดนี้
       if (err instanceof AxiosError) {
