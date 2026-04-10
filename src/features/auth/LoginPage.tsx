@@ -59,17 +59,22 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center p-6 gap-10  bg-black text-white font-sans relative">
-      {/* Hamburger Button */}
-      <button
-        className="fixed top-5 left-5 z-30 flex items-center gap-2 p-2 text-zinc-400 hover:text-white transition-colors hover:cursor-pointer"
-        onClick={() => setSidebarOpen(true)}
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-        </svg>
-        <span className="text-sm font-bold tracking-widest uppercase">Menu</span>
-      </button>
+    <div className="min-h-screen flex flex-col bg-black text-white font-sans">
+      {/* Top bar */}
+      <div className="w-full px-4 pt-4 shrink-0">
+        <button
+          className="flex items-center gap-2 p-2 text-zinc-400 hover:text-white transition-colors hover:cursor-pointer"
+          onClick={() => setSidebarOpen(true)}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+          </svg>
+          <span className="text-sm font-bold tracking-widest uppercase">Menu</span>
+        </button>
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1 flex flex-col justify-center items-center p-6 gap-10 relative">
 
       {/* Overlay */}
       <div
@@ -202,6 +207,7 @@ export default function LoginPage() {
         >
           Create your account
         </Link>
+      </div>
       </div>
     </div>
   );
