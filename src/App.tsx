@@ -34,9 +34,7 @@ export default function App() {
 
         toast.error("something went wrong. try again later");
       } finally {
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 400);
+        setIsLoading(false);
       }
     };
     initAuth();
