@@ -30,7 +30,7 @@ export default function HeaderNotAuth() {
           </button>
 
           {/* Logo */}
-          <div className="shrink-0 flex items-center gap-2">
+          <div className="shrink-0 hidden xl:flex items-center gap-2">
             <svg className="w-6 h-5 text-lime-400" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeLinecap="round">
               <path d="M2 4 Q9 1 22 4" strokeWidth={2.2} />
               <path d="M2 9 Q11 6 24 9" strokeWidth={2.2} />
