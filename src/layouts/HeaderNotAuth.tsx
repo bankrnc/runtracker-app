@@ -18,27 +18,29 @@ export default function HeaderNotAuth() {
   return (
     <>
       <header className="w-full bg-[#0a0a0a] border-b border-zinc-800 text-white">
-        <div className="w-full max-w-screen-2xl mx-auto px-4 md:px-8 xl:px-12 h-20 flex items-center justify-between">
-          {/* Mobile Menu Icon */}
-          <button
-            className="xl:hidden p-2 text-zinc-400 hover:text-white transition-colors hover:cursor-pointer"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-            </svg>
-          </button>
+        <div className="w-full max-w-screen-2xl mx-auto px-2 md:px-8 xl:px-12 h-20 flex items-center justify-between">
+          {/* Mobile Menu Icon + Logo (grouped left on mobile) */}
+          <div className="flex items-center gap-1 xl:gap-0">
+            <button
+              className="xl:hidden p-1.5 text-zinc-400 hover:text-white transition-colors hover:cursor-pointer"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+              </svg>
+            </button>
 
-          {/* Logo */}
-          <div className="shrink-0 flex items-center gap-2">
-            <svg className="w-6 h-5 text-lime-400 hidden xl:block" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeLinecap="round">
-              <path d="M2 4 Q9 1 22 4" strokeWidth={2.2} />
-              <path d="M2 9 Q11 6 24 9" strokeWidth={2.2} />
-              <path d="M2 14 Q8 11 18 14" strokeWidth={2.2} />
-            </svg>
-            <span className="text-2xl font-black italic tracking-tighter text-white">
-              Stride<span className="text-lime-400">Pilot</span>
-            </span>
+            {/* Logo */}
+            <div className="shrink-0 flex items-center gap-2">
+              <svg className="w-6 h-5 text-lime-400 hidden xl:block" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeLinecap="round">
+                <path d="M2 4 Q9 1 22 4" strokeWidth={2.2} />
+                <path d="M2 9 Q11 6 24 9" strokeWidth={2.2} />
+                <path d="M2 14 Q8 11 18 14" strokeWidth={2.2} />
+              </svg>
+              <span className="text-2xl font-black italic tracking-tighter text-white">
+                Stride<span className="text-lime-400">Pilot</span>
+              </span>
+            </div>
           </div>
 
           {/* Desktop Nav */}
@@ -49,9 +51,9 @@ export default function HeaderNotAuth() {
           </nav>
 
           {/* Auth Buttons */}
-          <div className="flex items-center gap-3 sm:gap-5 shrink-0">
+          <div className="flex items-center shrink-0">
             <div className="h-6 w-px bg-zinc-800 hidden md:block mr-6" />
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-1.5 sm:gap-4">
               <Link
                 to="/login"
                 className="text-[14px] font-bold text-zinc-100 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 px-6 py-2 rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:-translate-y-0.5 active:scale-95"
