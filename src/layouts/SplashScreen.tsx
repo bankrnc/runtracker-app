@@ -11,10 +11,10 @@ export default function SplashScreen() {
       {/* โลโก้หลัก: แยกตัวอักษรเพื่อใส่ Animation */}
       <div className="relative flex items-center mb-10 scale-110">
         <span className="text-5xl font-extrabold italic text-lime-400 animate-[slideInLeft_0.5s_ease-out_forwards]">
-          Velo
+          Stride
         </span>
         <span className="text-5xl font-extrabold italic text-white ml-1 animate-[slideInRight_0.5s_ease-out_forwards]">
-          Step
+          Pilot
         </span>
         {/* แสงเรืองรองหลังโลโก้ */}
         <div className="absolute inset-0 bg-lime-500/30 blur-2xl rounded-full scale-150 animate-pulse" />
