@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -83,6 +83,7 @@ export default function ProgramPage() {
   const [generating, setGenerating] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [suggestion, setSuggestion] = useState<string | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
   const [lockHovered, setLockHovered] = useState(false);
 
   const {
@@ -94,6 +95,14 @@ export default function ProgramPage() {
     resolver: zodResolver(generateProgramSchema),
     defaultValues: { daysPerWeek: 4, level: "beginner" },
   });
+
+  useEffect(() => {
+    if (showForm) {
+      setTimeout(() => {
+        formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 50);
+    }
+  }, [showForm]);
 
   useEffect(() => {
     programApi
@@ -286,7 +295,7 @@ export default function ProgramPage() {
 
           {/* Generate Form */}
           {showForm && (
-            <div className="relative border border-violet-500/20 bg-zinc-900 rounded-3xl p-6 mb-8 overflow-hidden">
+            <div ref={formRef} className="relative border border-violet-500/20 bg-zinc-900 rounded-3xl p-6 mb-8 overflow-hidden">
               <div className="absolute -top-16 -right-16 w-64 h-64 bg-violet-600/6 rounded-full blur-3xl pointer-events-none" />
               <div className="relative">
                 <div className="flex items-center gap-2 mb-5">
