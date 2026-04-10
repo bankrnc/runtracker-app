@@ -30,8 +30,8 @@ export default function HeaderNotAuth() {
           </button>
 
           {/* Logo */}
-          <div className="shrink-0 hidden xl:flex items-center gap-2">
-            <svg className="w-6 h-5 text-lime-400" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeLinecap="round">
+          <div className="shrink-0 flex items-center gap-2">
+            <svg className="w-6 h-5 text-lime-400 hidden xl:block" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeLinecap="round">
               <path d="M2 4 Q9 1 22 4" strokeWidth={2.2} />
               <path d="M2 9 Q11 6 24 9" strokeWidth={2.2} />
               <path d="M2 14 Q8 11 18 14" strokeWidth={2.2} />
@@ -62,7 +62,7 @@ export default function HeaderNotAuth() {
                 to="/register"
                 className="bg-lime-400 text-black px-6 py-2 rounded-full text-[14px] font-black transition-all duration-300 hover:bg-white hover:translate-x-1.5 hover:shadow-[0_0_25px_rgba(163,230,53,0.4)] active:scale-95 cursor-pointer"
               >
-                Get Started
+                Sign up
               </Link>
             </div>
           </div>

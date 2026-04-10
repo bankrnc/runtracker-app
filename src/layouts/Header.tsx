@@ -71,9 +71,9 @@ export default function Header() {
           </button>
 
           {/* 1. Logo Section */}
-          <div className="shrink-0 hidden xl:flex items-center gap-2">
+          <div className="shrink-0 flex items-center gap-2">
             <svg
-              className="w-6 h-5 text-lime-400"
+              className="w-6 h-5 text-lime-400 hidden xl:block"
               viewBox="0 0 24 18"
               fill="none"
               stroke="currentColor"
