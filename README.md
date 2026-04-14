@@ -1,23 +1,36 @@
-# VeloStep — Frontend
+# StridePilot — Frontend
 
-React 19 frontend for the VeloStep running tracker app. AI-generated training programs, per-km run logging, health metrics, and session scoring.
+React 19 frontend for [StridePilot](https://stride-pilot.vercel.app), an AI-powered running training application. Includes AI program generation, per-km session logging, analytics dashboard, and health metrics calculator.
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
+| Category | Technology |
 |---|---|
-| Framework | React 19 (with React Compiler) |
+| Framework | React 19 |
 | Language | TypeScript |
 | Routing | React Router v7 |
-| State | Zustand |
+| State Management | Zustand |
 | Forms | React Hook Form + Zod |
 | Styling | Tailwind CSS v4 |
-| HTTP | Axios |
+| HTTP Client | Axios |
 | Toasts | Sonner |
-| Build | Vite |
+| Build Tool | Vite |
 | Package Manager | pnpm |
+
+---
+
+## Features
+
+- **AI Program Generation** — Input goal, fitness level, days/week, and personal best data → generates a 4-week structured training plan via Claude AI
+- **Program Detail View** — Week tabs, session cards with pace/HR targets per km range, animated generating overlay
+- **Session Logging** — Per-km log modal (pace M:SS + HR bpm), live score /10 after save
+- **Analytics Dashboard** — HR zone distribution, session type breakdown, weekly progress
+- **Health Calculator** — BMI, BMR (Mifflin-St Jeor), TDEE, macros, HR zones from profile data
+- **Profile Management** — Edit info, upload avatar
+- **Blog** — Read posts from admin
+- **Authentication** — Register/Login with JWT httpOnly cookie, protected routes
 
 ---
 
@@ -26,64 +39,57 @@ React 19 frontend for the VeloStep running tracker app. AI-generated training pr
 ```
 src/
 ├── api/
-│   └── programApi.ts         # API calls for programs/sessions
-├── config/
-│   └── apiClient.ts          # Axios instance (baseURL, withCredentials)
-├── hooks/
-│   └── useHealthMetrics.ts   # BMI, BMR, TDEE, macros, HR zones
+│   └── programApi.ts               # Program + session API calls
+├── features/
+│   ├── auth/
+│   │   ├── LoginPage.tsx
+│   │   └── RegisterPage.tsx
+│   └── program/
+│       └── ProgramPage.tsx         # Program list + AI generate form
 ├── layouts/
-│   ├── Header.tsx            # Nav + mobile sidebar
-│   ├── HeaderNotAuth.tsx     # Public header
+│   ├── Header.tsx                  # Nav with mobile burger menu
+│   ├── HeaderNotAuth.tsx           # Public header
 │   ├── MainLayout.tsx
-│   ├── ProtectedRoute.tsx
-│   ├── PublicOnly.tsx
-│   ├── SharedLayout.tsx
-│   └── SplashScreen.tsx
+│   ├── ProtectedRoute.tsx          # Redirect to login if not authenticated
+│   ├── PublicOnly.tsx              # Redirect to /program if already logged in
+│   └── SharedLayout.tsx
+├── lib/
+│   └── apiClient.ts                # Axios instance (baseURL: "/api", withCredentials)
 ├── pages/
+│   ├── ProgramDetailPage.tsx       # Week tabs, session cards, log run modal
 │   ├── DashboardPage.tsx
-│   ├── HealthPage.tsx        # BMI/BMR/TDEE/macros/HR zones
-│   ├── LoginPage.tsx
-│   ├── RegisterPage.tsx
-│   ├── ProfilePage.tsx       # Edit profile (wraps SetupProfilePage)
-│   ├── ProfileViewPage.tsx   # View profile
-│   ├── SetupProfilePage.tsx  # Profile setup form
-│   ├── ProgramPage.tsx       # Program list + AI generate form
-│   ├── ProgramDetailPage.tsx # Week tabs, session cards, log modal
+│   ├── HealthPage.tsx              # BMI/BMR/TDEE/macros/HR zones
+│   ├── ProfilePage.tsx
+│   ├── ProfileViewPage.tsx
+│   ├── SetupProfilePage.tsx
 │   ├── BlogPage.tsx
-│   ├── AboutUsPage.tsx
-│   └── FeaturePage.tsx
+│   ├── FeaturePage.tsx
+│   └── AboutUsPage.tsx
 ├── routes/
-│   └── index.tsx             # createBrowserRouter config
+│   └── index.tsx                   # createBrowserRouter config
 ├── schemas/
-│   └── program.schema.ts     # Zod schemas + TS interfaces + color maps
+│   └── program.schema.ts           # Zod schemas, TS types, session color maps
 └── store/
-    └── useAuthStore.ts       # Zustand auth store
+    └── useAuthStore.ts             # Zustand auth store (user, login, logout)
 ```
 
 ---
 
-## Key Features
+## Deployment
 
-### AI Program Generation
-- User inputs goal (free text), level, days/week, start date
-- Backend calls Claude AI → returns 4-week structured JSON
-- Each session has segments with pace/HR targets per km range
+The app is deployed on **Vercel** with API proxy rewrites to avoid cross-origin cookie issues (Safari ITP).
 
-### Program Detail View
-- Week tabs navigation
-- Session cards showing segment plan (km range, pace, HR)
-- Log Run modal — per-km table input (pace `M:SS`, HR bpm)
-- Live score display after saving: score /10, avg pace, avg HR, distance
+`vercel.json`:
+```json
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://<railway-url>/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+```
 
-### Health Page
-- Calculates BMI, BMR (Mifflin-St Jeor), TDEE, macros (25/50/25 split)
-- HR zones (5 zones based on max HR)
-- Requires complete profile (height, weight, DOB, gender, activity level)
-
-### Auth
-- JWT stored in httpOnly cookie (handled by backend)
-- Zustand store holds user state client-side
-- Protected routes redirect to login if not authenticated
+All API requests use `baseURL: "/api"` — Vercel proxies them to Railway, keeping cookies same-origin.
 
 ---
 
@@ -103,21 +109,16 @@ src/
 ## Getting Started
 
 ```bash
-# Install dependencies
 pnpm install
-
-# Set up environment variable
-# Create .env file:
-VITE_API_URL=http://localhost:8888
-
-# Start dev server (port 5173)
 pnpm dev
 ```
+
+> No environment variables needed locally — configure `vercel.json` proxy for production, or update `apiClient.ts` baseURL to point directly to your backend.
 
 ---
 
 ## Notes
 
-- Uses **React Compiler** — no manual `useMemo`/`useCallback` needed
-- Pace format: `M:SS` (e.g. `5:30`) — validated on submit before sending to API
 - Dark theme only: `bg-black`, zinc palette, `lime-400` primary accent, `violet` for AI elements
+- Pace format: `M:SS` (e.g. `5:30`)
+- `font-size: 16px` on all inputs to prevent iOS auto-zoom
